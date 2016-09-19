@@ -482,6 +482,7 @@
 		DEE403081CD04EE4007FB39E /* TabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TabViewController.m; sourceTree = "<group>"; };
 		DEE4030B1CD05009007FB39E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		DEE4030D1CD066F1007FB39E /* ic_launcher.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_launcher.png; sourceTree = "<group>"; };
+		DEE5CDBC1D900B2900E7856A /* HeyVote.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HeyVote.entitlements; sourceTree = "<group>"; };
 		DEE872301CDD0EA600BB459C /* Microsoft Sans Serif.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Microsoft Sans Serif.ttf"; sourceTree = "<group>"; };
 		DEE872321CDD10A200BB459C /* MS Reference Sans Serif Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MS Reference Sans Serif Bold.ttf"; sourceTree = "<group>"; };
 		DEEA07601CD8469100B85811 /* GMDCircleLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GMDCircleLoader.h; sourceTree = "<group>"; };
@@ -969,6 +970,7 @@
 		DEE402A51CD045E6007FB39E /* HeyVote */ = {
 			isa = PBXGroup;
 			children = (
+				DEE5CDBC1D900B2900E7856A /* HeyVote.entitlements */,
 				DEE403031CD04EE4007FB39E /* ViewControllers */,
 				DEE402DA1CD04D82007FB39E /* Images */,
 				DEE402D91CD04D63007FB39E /* ThirdParties */,
@@ -1777,6 +1779,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HeyVote/HeyVote.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = HeyVote/Info.plist;
@@ -1792,6 +1795,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HeyVote/HeyVote.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = HeyVote/Info.plist;
