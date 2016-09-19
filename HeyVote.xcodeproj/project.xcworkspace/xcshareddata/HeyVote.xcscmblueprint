@@ -1,0 +1,24 @@
+{
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "4acb82bf-45c4-459c-a24d-65e7752386e7++5833" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "4acb82bf-45c4-459c-a24d-65e7752386e7++5833" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "47E7D872-15FE-4A58-B270-DE0001A9B8C3",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "4acb82bf-45c4-459c-a24d-65e7752386e7++5833" : "HeyVote-01-05-2016\/HeyVote\/ThirdParties\/base64\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "HeyVote",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "HeyVote.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/repo.flipdevnet.com\/svn\/osx",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4acb82bf-45c4-459c-a24d-65e7752386e7++5833"
+    }
+  ]
+}
