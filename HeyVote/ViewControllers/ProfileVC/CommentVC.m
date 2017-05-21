@@ -38,15 +38,35 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
      testde = @"";
-    _commentTextView.autocorrectionType = UITextAutocorrectionTypeNo;
     
-   [[IQKeyboardManager sharedManager] setEnableAutoToolbar:NO];
+    if (_postId == 2) {
+        [_commentBoxView setHidden:YES];
+    }
+    
+    else{
+        
+        [_commentBoxView setHidden:NO];
+        _commentTextView.autocorrectionType = UITextAutocorrectionTypeNo;
+        
+        [[IQKeyboardManager sharedManager] setEnableAutoToolbar:NO];
+        
+        
+        [[IQKeyboardManager sharedManager] setEnable:NO];
+        commentBoxRect = CGRectMake(self.commentBoxView.frame.origin.x, self.commentBoxView.frame.origin.y , self.commentBoxView.frame.size.width, self.commentBoxView.frame.size.height);
+        
+        self.commentTextView.layer.borderWidth = 0.0f;
+        _commentTextView.text  = @"";
+        [_commentTextView becomeFirstResponder];
+        [_writeAcommentLabel setHidden:NO];
+        
+
+        
+    }
     
     
-   [[IQKeyboardManager sharedManager] setEnable:NO];
-    commentBoxRect = CGRectMake(self.commentBoxView.frame.origin.x, self.commentBoxView.frame.origin.y , self.commentBoxView.frame.size.width, self.commentBoxView.frame.size.height);
     replyrect =CGRectMake(self.replyInnerView.frame.origin.x, self.replyInnerView.frame.origin.y , self.replyInnerView.frame.size.width, self.replyInnerView.frame.size.height);
     
+
     
    // [_myTableView reloadData];
     
@@ -55,11 +75,6 @@
      AdTheRateArray = [[NSMutableArray alloc]init];
     [self callWebService];
     
-self.commentTextView.layer.borderWidth = 0.0f;
- _commentTextView.text  = @"";
-    [_commentTextView becomeFirstResponder];
-    [_writeAcommentLabel setHidden:NO];
-  
     
     [_replyView setHidden:YES];
     [_blurView setAlpha:0];
@@ -1854,11 +1869,12 @@ self.commentTextView.layer.borderWidth = 0.0f;
                             UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
                             heyVoteProfileVC *myVC = (heyVoteProfileVC *)[storyboard instantiateViewControllerWithIdentifier:@"heyVoteProfileVC"];
                             myVC.profileArray = arrayVal;
-                            myVC.contactToke = token;
+                            myVC.contactToke = userIdf;
+                            myVC.fromComment = @"fromComment";
                             [self PushAnimation];
-                            [self.navigationController pushViewController:myVC animated:NO];
+                   //     [self.navigationController pushViewController:myVC animated:NO];
                             
-                            
+                         [self presentViewController:myVC animated:YES completion:nil];
                         }
                         
                         

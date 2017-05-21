@@ -29,10 +29,13 @@ static int count = 0;
 #import "NSData+Base64.h"
 #import "Base64.h"
 #import "homeViewController.h"
+//#import <Crashlytics/Crashlytics.h>
+
 
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 #import <AssetsLibrary/AssetsLibrary.h>
+
 
 
 #define CAPTURE_FRAMES_PER_SECOND		20
@@ -141,6 +144,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
         BOOL WeAreRecording;
     UIImage *capturedImageSingle;
     UIImage *capturedImageDouble;
+    UIImage *capturedImageTriple;
+     UIImage *capturedImageQuadraple;
     AVAudioRecorder *recorder;
     AVAudioPlayer *player;
     NSMutableArray*finalArray;
@@ -177,7 +182,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [super viewDidLoad];
     
     
-    
+    //[[Crashlytics sharedInstance] crash];
+
     
     
     _threeVersusFirstText.borderStyle = UITextBorderStyleLine;
@@ -432,6 +438,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     [_imageViewColourPicker setHidden:YES];
      [_finalViewWithGestures setHidden:YES];
+     [_threeversusFinalViewWithGestures setHidden:YES];
+     [_fourVersusFinalGestures setHidden:YES];
     
     _cameraQatarLabel.text = [[[[[NSUserDefaults standardUserDefaults] objectForKey:@"basicInformation"] allObjects] valueForKey:@"Country"] objectAtIndex:0];
     
@@ -474,13 +482,49 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     pinchGesture.delegate = self;
     
+    
+    UIPanGestureRecognizer *panGestureThree = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    panGestureThree.delegate = self;
+    UIRotationGestureRecognizer *rotationGestureThree = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotate:)];
+    rotationGestureThree.delegate = self;
+    UIPinchGestureRecognizer *pinchGestureThree = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
+    pinchGestureThree.delegate = self;
+    
+    
+    UIPanGestureRecognizer *panGestureFour = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    panGestureFour.delegate = self;
+    UIRotationGestureRecognizer *rotationGestureFour = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotate:)];
+    rotationGestureFour.delegate = self;
+    UIPinchGestureRecognizer *pinchGestureFour = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
+    pinchGestureFour.delegate = self;
+    
+    
     [_finalViewWithGestures addGestureRecognizer:panGesture];
     [_finalViewWithGestures addGestureRecognizer:rotationGesture];
     [_finalViewWithGestures addGestureRecognizer:pinchGesture];
     
     
+    [_threeversusFinalViewWithGestures addGestureRecognizer:panGestureThree];
+    [_threeversusFinalViewWithGestures addGestureRecognizer:rotationGestureThree];
+    [_threeversusFinalViewWithGestures addGestureRecognizer:pinchGestureThree];
+    
+    [_fourVersusFinalGestures addGestureRecognizer:panGestureFour];
+    [_fourVersusFinalGestures addGestureRecognizer:rotationGestureFour];
+    [_fourVersusFinalGestures addGestureRecognizer:pinchGestureFour];
+    
+
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [_finalViewWithGestures addGestureRecognizer:singleTap];
+    
+    UITapGestureRecognizer *singleTapThree = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapThree:)];
+    [_threeversusFinalViewWithGestures addGestureRecognizer:singleTapThree];
+    
+    UITapGestureRecognizer *singleTapFour = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFour:)];
+     [_fourVersusFinalGestures addGestureRecognizer:singleTapFour];
+    
+    
+   
+   
     
     UIColor *color = [UIColor whiteColor];
     _imageViewTypeYourQuestionText.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"Type your question here" attributes:@{NSForegroundColorAttributeName: color}];
@@ -711,6 +755,14 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
     cameraVal = @"threeVersusOne";
     
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
+    
     NSLog(@"31");
     
 }
@@ -719,6 +771,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
     
      cameraVal = @"threeVersusTwo";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
     
     NSLog(@"32");
     
@@ -729,6 +788,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
      cameraVal = @"threeVersusThree";
     
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
+    
     NSLog(@"33");
     
 }
@@ -738,6 +804,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
      cameraVal = @"fourVersusOne";
     
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
+    
     NSLog(@"41");
     
 }
@@ -746,6 +819,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
     
      cameraVal = @"fourVersusTwo";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
     NSLog(@"42");
     
 }
@@ -753,6 +833,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
     
      cameraVal = @"fourVersusThree";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
     NSLog(@"43");
     
 }
@@ -760,6 +847,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 {
     
      cameraVal = @"fourVersusFour";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle: nil
+                                                             delegate:self
+                                                    cancelButtonTitle: @"Cancel"
+                                               destructiveButtonTitle: nil
+                                                    otherButtonTitles: @"Take a new photo", @"Choose from existing", nil];
+    [actionSheet showInView:self.view];
     NSLog(@"44");
     
 }
@@ -1013,7 +1107,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     if ( gesture.state == UIGestureRecognizerStateEnded ) {
         
-        
+        [_versusButtonsView setHidden:YES];
          self.session.sessionPreset = AVCaptureSessionPresetPhoto ;
         count = 0;
         
@@ -1182,6 +1276,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
         
    
     _finalTitleLabelText.text = @"";
+          _threeVersusFinalText.text = @"";
+          _fourVersusFinalText.text = @"";
         
         _singleImageLeftText.text = @"";
         _singleImageRightText.text = @"";
@@ -1191,6 +1287,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_imageViewTypeYourQuestion setHidden:NO];
     
     [_finalViewWithGestures setHidden:YES];
+         [_threeversusFinalViewWithGestures setHidden:YES];
+         [_fourVersusFinalGestures setHidden:YES];
     
     [_doubleImageView setHidden:NO];
     
@@ -1219,6 +1317,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     [_doubleImageView setHidden:YES];
     _finalTitleLabelText.text = @"";
+    _threeVersusFinalText.text = @"";
+      _fourVersusFinalText.text = @"";
     
     _singleImageLeftText.text = @"";
     _singleImageRightText.text = @"";
@@ -1243,6 +1343,32 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_imageViewTypeYourQuestion setHidden:NO];
     [_imageViewColourPicker setHidden:NO];
       [_finalViewWithGestures setHidden:YES];
+       [_threeversusFinalViewWithGestures setHidden:YES];
+       [_fourVersusFinalGestures setHidden:YES];
+    
+}
+
+- (void)handleTapThree:(UITapGestureRecognizer *)tapRecognizer
+{
+    
+    [_imageViewTypeYourQuestionText becomeFirstResponder];
+    [_imageViewTypeYourQuestion setHidden:NO];
+    [_imageViewColourPicker setHidden:NO];
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
+    
+}
+
+- (void)handleTapFour:(UITapGestureRecognizer *)tapRecognizer
+{
+    
+    [_imageViewTypeYourQuestionText becomeFirstResponder];
+    [_imageViewTypeYourQuestion setHidden:NO];
+    [_imageViewColourPicker setHidden:NO];
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
     
 }
 
@@ -2043,6 +2169,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 }
 
 - (IBAction)galleryButton:(id)sender {
+     cameraVal = @"";
+  
       _finalViewImage.image = nil;
      whichMedia = @"gallery";
     [_cameraLabel setHidden:YES];
@@ -2094,6 +2222,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             
             [_secondImageView setImage:image];
+            [_threeVersusSecondImage setImage:image];
+            [_fourVersusSecondImage setImage:image];
+            
             
             [self dismissViewControllerAnimated:YES completion:nil];
         }
@@ -2106,8 +2237,10 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
             
-            
+            [_firstImageView setImage:image];
+            [_capturedImageView setImage:image];
             [_threeVersusFirstImage setImage:image];
+             [_fourVersusFirstImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
         }
@@ -2120,7 +2253,10 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
             
             
+            
+            [_secondImageView setImage:image];
             [_threeVersusSecondImage setImage:image];
+            [_fourVersusSecondImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
         }
@@ -2135,6 +2271,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             
             [_threeVerusThirdImage setImage:image];
+            [_fourVersusThirdImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
         }
@@ -2146,7 +2283,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
             
-            
+            [_firstImageView setImage:image];
+            [_capturedImageView setImage:image];
+            [_threeVersusFirstImage setImage:image];
             [_fourVersusFirstImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
@@ -2161,6 +2300,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
             
             
+            [_secondImageView setImage:image];
+            [_threeVersusSecondImage setImage:image];
             [_fourVersusSecondImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
@@ -2174,7 +2315,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
             
-            
+            [_threeVerusThirdImage setImage:image];
             [_fourVersusThirdImage setImage:image];
             
             [self dismissViewControllerAnimated:YES completion:nil];
@@ -2313,7 +2454,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     recorder.meteringEnabled = YES;
     [recorder prepareToRecord];
     
-
+ cameraVal = @"newVal";
     
     
 }
@@ -2362,6 +2503,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     
     _finalTitleLabelText.text=@"";
+      _threeVersusFinalText.text = @"";
+      _fourVersusFinalText.text = @"";
     [_voiceLabel setHidden:YES];
      [_cameraLabel setHidden:NO];
       [_versusButtonsView setHidden:NO];
@@ -2379,6 +2522,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_tripleImageView setHidden:YES];
     [_quadrapleImagesView setHidden:YES];
     [_finalViewWithGestures setHidden:YES];
+      [_threeversusFinalViewWithGestures setHidden:YES];
+      [_fourVersusFinalGestures setHidden:YES];
     
     [_imageViewTypeYourQuestion setHidden:NO];
     [_capturedView setHidden:YES];
@@ -2648,6 +2793,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
      voiceVal=@"";
     
     _finalTitleLabelText.text=@"";
+      _threeVersusFinalText.text = @"";
+      _fourVersusFinalText.text = @"";
     
       [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -2660,12 +2807,17 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_imageViewTypeYourQuestionText setTextColor:color];
     
      [_finalTitleLabelText setTextColor:color];
+     [_threeVersusFinalText setTextColor:color];
+     [_fourVersusFinalText setTextColor:color];
+    
 }
 
 //Action when user finished to select a color
 -(void)colorSelected:(UIColor *)color{
     [_imageViewTypeYourQuestionText setTextColor:color];
     [_finalTitleLabelText setTextColor:color];
+      [_threeVersusFinalText setTextColor:color];
+      [_fourVersusFinalText setTextColor:color];
 }
 
 
@@ -2751,34 +2903,38 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     NSLog(@"Text field did begin editing");
     [_imageViewColourPicker setHidden:NO];
-    
-    if (![_doubleImageView isHidden]) {
+       
+      
         
-        if (_secondImageView.image == nil) {
-            [self showToast:@"Please select your second image!"];
-            [textField resignFirstResponder];
+        if ([versusButton isEqualToString:@"versusOne"] ) {
             
-            
-            
-        }
-        
-        
-        else if ([_secondLeftTextField.text length] == 0 || [_secondRightTextField.text length] == 0){
-            
-            [self showToast:@"Please enter image captions!"];
-            [textField resignFirstResponder];
-            
-            
-        }
+            if (_capturedImageView.image != nil) {
+                
+                
+                if ([_singleImageLeftText.text length] == 0 || [_singleImageRightText.text length] == 0){
+                    
+                    [self showToast:@"Please enter image captions!"];
+                    [textField resignFirstResponder];
+                    
+                    
+                }
 
+            
+        }
+        }
         
-    }
-    
-    else{
-        if (_capturedImageView.image != nil) {
+        else if ([versusButton isEqualToString:@"versusTwo"]){
+            
+            if (_secondImageView.image == nil) {
+                [self showToast:@"Please select your second image!"];
+                [textField resignFirstResponder];
+                
+                
+                
+            }
             
             
-            if ([_singleImageLeftText.text length] == 0 || [_singleImageRightText.text length] == 0){
+            else if ([_secondLeftTextField.text length] == 0 || [_secondRightTextField.text length] == 0){
                 
                 [self showToast:@"Please enter image captions!"];
                 [textField resignFirstResponder];
@@ -2788,20 +2944,80 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
             
             
-            
         }
-
-        
+            
+               else if ([versusButton isEqualToString:@"versusThree"]){
+                   
+                   
+                   if (_threeVersusSecondImage.image == nil) {
+                       [self showToast:@"Please select your second image!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                       
+                   }
+                   
+                   else if (_threeVerusThirdImage.image == nil) {
+                       [self showToast:@"Please select your third image!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                       
+                   }
+                   
+                   
+                   
+                   else if ([_threeVersusFirstText.text length] == 0 || [_threeVersusSecondText.text length] == 0 || [_threeVersusThirdText.text length] == 0){
+                       
+                       [self showToast:@"Please enter image captions!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                   }
+                   
+                   
+               }
+            
+               else if ([versusButton isEqualToString:@"versusFour"]){
+                   
+                   
+                   if (_fourVersusSecondImage.image == nil) {
+                       [self showToast:@"Please select your second image!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                       
+                   }
+                   
+                   else if (_fourVersusThirdImage.image == nil) {
+                       [self showToast:@"Please select your third image!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                       
+                   }
+                   
+                   else if (_fourVersusFourthImage.image == nil) {
+                       [self showToast:@"Please select your fourth image!"];
+                       [textField resignFirstResponder];
        
-        
+                   }
+                   
+                   
+                   
+                   else if ([_fourVersusFirstText.text length] == 0 || [_fourVersusSecondText.text length] == 0 || [_fourVersusThirdText.text length] == 0 || [_fourVersusFourthText.text length] == 0){
+                       
+                       [self showToast:@"Please enter image captions!"];
+                       [textField resignFirstResponder];
+                       
+                       
+                   }
+                   
+               }
         
     }
-        
     }
-        
-    }
-    
-    
+ 
     else{
         
         if ([_searchTextField.text length]== 0 ) {
@@ -2829,44 +3045,131 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     if ([_checkInView isHidden]) {
         
    
-
-    _finalTitleLabelText.text = _imageViewTypeYourQuestionText.text;
-     [_imageViewTypeYourQuestion setHidden:YES];
-      [_imageViewColourPicker setHidden:YES];
-      [_finalViewWithGestures setHidden:NO];
-    
-    
-    if (![_doubleImageView isHidden]) {
-        
-        if (_secondImageView.image == nil) {
-          //  [self showToast:@"Please select your second image!"];
-            [textField resignFirstResponder];
+        if ([versusButton isEqualToString:@"versusOne"]) {
+            
+            if ([_singleImageLeftText.text length] == 0 || [_singleImageRightText.text length]== 0 || [_imageViewTypeYourQuestionText.text length]==0) {
+                [textField resignFirstResponder];
+                
+                
+                [_imageViewTypeYourQuestion setHidden:NO];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:YES];
+                [_threeversusFinalViewWithGestures setHidden:YES];
+                [_fourVersusFinalGestures setHidden:YES];
+            }
+            
+            else{
+                
+                _finalTitleLabelText.text = _imageViewTypeYourQuestionText.text;
+                _threeVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                _fourVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                [_imageViewTypeYourQuestion setHidden:YES];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:NO];
+                [_threeversusFinalViewWithGestures setHidden:NO];
+                [_fourVersusFinalGestures setHidden:NO];
+                
+                
+            }
             
             
-            [_imageViewTypeYourQuestion setHidden:NO];
-            [_imageViewColourPicker setHidden:YES];
-            [_finalViewWithGestures setHidden:YES];
+            
+         
             
         }
         
-//        
-//        else if ([_secondLeftTextField.text length] == 0 || [_secondRightTextField.text length] == 0){
-//            
-//            [self showToast:@"Please enter image captions!"];
-//            [textField resignFirstResponder];
-//            
-//            [_imageViewTypeYourQuestion setHidden:NO];
-//            [_imageViewColourPicker setHidden:YES];
-//            [_finalViewWithGestures setHidden:YES];
-//            
-//        }
+        else if ([versusButton isEqualToString:@"versusTwo"]){
+            
+            if ([_secondLeftTextField.text length] == 0 || [_secondRightTextField.text length]== 0 || [_imageViewTypeYourQuestionText.text length]==0) {
+                [textField resignFirstResponder];
+      
+                [_imageViewTypeYourQuestion setHidden:NO];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:YES];
+                [_threeversusFinalViewWithGestures setHidden:YES];
+                [_fourVersusFinalGestures setHidden:YES];
+            }
+            
+            else{
+                
+                _finalTitleLabelText.text = _imageViewTypeYourQuestionText.text;
+                _threeVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                _fourVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                [_imageViewTypeYourQuestion setHidden:YES];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:NO];
+                [_threeversusFinalViewWithGestures setHidden:NO];
+                [_fourVersusFinalGestures setHidden:NO];
+                
+                
+            }
+            
+
+        }
         
-        
-    }
+        else if ([versusButton isEqualToString:@"versusThree"]){
+            if ([_threeVersusFirstText.text length] == 0 || [_threeVersusSecondText.text length]== 0 || [_threeVersusThirdText.text length]== 0 || [_imageViewTypeYourQuestionText.text length]==0) {
+                [textField resignFirstResponder];
+                
+                
+                [_imageViewTypeYourQuestion setHidden:NO];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:YES];
+                [_threeversusFinalViewWithGestures setHidden:YES];
+                [_fourVersusFinalGestures setHidden:YES];
+            }
+            
+            else{
+                
+                _finalTitleLabelText.text = _imageViewTypeYourQuestionText.text;
+                _threeVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                _fourVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                [_imageViewTypeYourQuestion setHidden:YES];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:NO];
+                [_threeversusFinalViewWithGestures setHidden:NO];
+                [_fourVersusFinalGestures setHidden:NO];
+                
+                
+            }
+            
+            
+            
+            
+        }
+        else if ([versusButton isEqualToString:@"versusFour"]){
+            
+            if ([_fourVersusFirstText.text length] == 0 || [_fourVersusSecondText.text length]== 0 || [_fourVersusThirdText.text length]== 0 || [_fourVersusFourthText.text length]== 0 || [_imageViewTypeYourQuestionText.text length] == 0) {
+                [textField resignFirstResponder];
+                
+                
+                [_imageViewTypeYourQuestion setHidden:NO];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:YES];
+                [_threeversusFinalViewWithGestures setHidden:YES];
+                [_fourVersusFinalGestures setHidden:YES];
+            }
+            
+            else{
+                
+                _finalTitleLabelText.text = _imageViewTypeYourQuestionText.text;
+                _threeVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                _fourVersusFinalText.text = _imageViewTypeYourQuestionText.text;
+                [_imageViewTypeYourQuestion setHidden:YES];
+                [_imageViewColourPicker setHidden:YES];
+                [_finalViewWithGestures setHidden:NO];
+                [_threeversusFinalViewWithGestures setHidden:NO];
+                [_fourVersusFinalGestures setHidden:NO];
+                
+                
+            }
+            
+            
+            
+        }
+   
     
-    
-    
-    
+      
      }
     
     else if ([_searchTextField.text length]== 0 ) {
@@ -3453,6 +3756,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
 
 
+
+
+
 - (IBAction)postButton:(id)sender {
     
     [self.mc pause];
@@ -3528,7 +3834,10 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
                 
                 _finalViewImage.image =capturedImageSingle;
+                
                 [_finalView setHidden:NO];
+                [_finalViewImage setHidden:NO];
+                [_finalImageThreeVersusAndFour setHidden:YES];
 
             }
      
@@ -3649,198 +3958,450 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     if ([_voicePlayerView isHidden]) {
         
 
-    if ([_finalTitleLabelText.text length] == 0) {
-        [self showToast:@"Please enter the post title"];
-    
-    }
-    
-    else{
-        
-        if ([_doubleImageView isHidden]) {
-        
-        if ([privateCategory isEqualToString:@"Private"]) {
+        if ([versusButton isEqualToString:@"versusOne"]) {
             
-            [_privateView setHidden:NO];
+            if ([_finalTitleLabelText.text length] == 0) {
+                [self showToast:@"Please enter the post title"];
+                
+            }
+            
+            else{
             
             
-            CGRect rectt = [_singleImageView bounds];
-            UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
-            CGContextRef contextt = UIGraphicsGetCurrentContext();
-            [_singleImageView.layer renderInContext:contextt];
-            UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
             
+            if ([privateCategory isEqualToString:@"Private"]) {
+                
+                [_privateView setHidden:NO];
+                
+                
+                CGRect rectt = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                _finalViewImage.image =capturedImaget;
+                
+                [_singleImageTextView setHidden:YES];
+                
+                
+                
+                CGRect rect = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:context];
+                UIImage * capturedImageSingleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
+                [capturedImageSingleeee drawInRect:cropRect];
+                capturedImageSingle= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                
+                
+                
+                [_singleImageTextView setHidden:NO];
+                
+                
+            }
             
-            _finalViewImage.image =capturedImaget;
-            
-            [_singleImageTextView setHidden:YES];
-           
-            
-            
-            CGRect rect = [_singleImageView bounds];
-            UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            [_singleImageView.layer renderInContext:context];
-           UIImage * capturedImageSingleeee = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
-            /* Render the screen shot at custom resolution */
-            CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
-            UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
-            [capturedImageSingleeee drawInRect:cropRect];
-            capturedImageSingle= UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-
-            
-        
-            
-       
-           [_singleImageTextView setHidden:NO];
-            
-            
+            else{
+                
+                
+                
+                CGRect rectt = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:contextt];
+                UIImage *capturedImage = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                _finalViewImage.image =capturedImage;
+                
+                
+                [_singleImageTextView setHidden:YES];
+                
+                [_finalView setHidden:NO];
+                [_finalViewImage setHidden:NO];
+                [_finalImageThreeVersusAndFour setHidden:YES];
+                
+                
+                
+                CGRect rect = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:context];
+                UIImage* capturedImageSingleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
+                [capturedImageSingleeee drawInRect:cropRect];
+                capturedImageSingle= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                
+                
+                [_singleImageTextView setHidden:NO];
+                
+            }
+                
+            }
         }
         
-        else{
+        else if ([versusButton isEqualToString:@"versusTwo"]){
             
- 
+            if ([_finalTitleLabelText.text length] == 0) {
+                [self showToast:@"Please enter the post title"];
+                
+            }
             
-            CGRect rectt = [_singleImageView bounds];
-            UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
-            CGContextRef contextt = UIGraphicsGetCurrentContext();
-            [_singleImageView.layer renderInContext:contextt];
-            UIImage *capturedImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
-            _finalViewImage.image =capturedImage;
+            else{
             
             
-            [_singleImageTextView setHidden:YES];
-            
-            [_finalView setHidden:NO];
-            
-            
-            
-            CGRect rect = [_singleImageView bounds];
-            UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            [_singleImageView.layer renderInContext:context];
-           UIImage* capturedImageSingleeee = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
-            /* Render the screen shot at custom resolution */
-            CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
-            UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
-            [capturedImageSingleeee drawInRect:cropRect];
-            capturedImageSingle= UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
+            if ([privateCategory isEqualToString:@"Private"]) {
+                
 
+                
+                [_privateView setHidden:NO];
+                
+                
+                CGRect rectt = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                _finalViewImage.image =capturedImaget;
+                
+                
+                [_doubleImageTextView setHidden:YES];
+                
+                
+                
+                CGRect rect = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:context];
+                UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                
+                [_doubleImageTextView setHidden:NO];
+                
+                
+            }
             
-            
-            [_singleImageTextView setHidden:NO];
-            
-        }
-    }
-        
-        
-        else{
-            
-            {
+            else{
                 
                 
                 
                 
-                if ([privateCategory isEqualToString:@"Private"]) {
-                    
-            
-                    
-                    
-                    
-                    [_privateView setHidden:NO];
-                    
-                    
-                    CGRect rectt = [_singleImageView bounds];
-                    UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
-                    CGContextRef contextt = UIGraphicsGetCurrentContext();
-                    [_singleImageView.layer renderInContext:contextt];
-                    UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    
-                    _finalViewImage.image =capturedImaget;
-                    
-                    
-                    [_doubleImageTextView setHidden:YES];
-                    
-                    
-                    
-                    CGRect rect = [_singleImageView bounds];
-                    UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
-                    CGContextRef context = UIGraphicsGetCurrentContext();
-                    [_singleImageView.layer renderInContext:context];
-                   UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    /* Render the screen shot at custom resolution */
-                    CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
-                    UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
-                    [capturedImageDoubleeee drawInRect:cropRect];
-                    capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-
-                    
-                    
-                     [_doubleImageTextView setHidden:NO];
-                    
-                    
-                }
+                CGRect rectt = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:contextt];
+                UIImage *capturedImage = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
                 
-                else{
-                    
-                    
-                   
-                    
-                    CGRect rectt = [_singleImageView bounds];
-                    UIGraphicsBeginImageContextWithOptions(rectt.size,_singleImageView.opaque,0.0f);
-                    CGContextRef contextt = UIGraphicsGetCurrentContext();
-                    [_singleImageView.layer renderInContext:contextt];
-                    UIImage *capturedImage = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    _finalViewImage.image =capturedImage;
-                    
-                    
-                    
-                 
-                    
-                    [_finalView setHidden:NO];
-                    
-                     [_doubleImageTextView setHidden:YES];
-                    
-                    CGRect rect = [_singleImageView bounds];
-                    UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
-                    CGContextRef context = UIGraphicsGetCurrentContext();
-                    [_singleImageView.layer renderInContext:context];
-                  UIImage*  capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    /* Render the screen shot at custom resolution */
-                    CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
-                    UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
-                    [capturedImageDoubleeee drawInRect:cropRect];
-                    capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    
-                 [_doubleImageTextView setHidden:NO];
-                    
-                }
+                _finalViewImage.image =capturedImage;
+                
+                
+                
+                
+                [_finalView setHidden:NO];
+                [_finalViewImage setHidden:NO];
+                [_finalImageThreeVersusAndFour setHidden:YES];
+                
+                [_doubleImageTextView setHidden:YES];
+                
+                CGRect rect = [_singleImageView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_singleImageView.layer renderInContext:context];
+                UIImage*  capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _singleImageView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                [_doubleImageTextView setHidden:NO];
+                
+            }
             }
             
         }
         
         
-           }
+        else if ([versusButton isEqualToString:@"versusThree"]){
+            
+            [self.tripleScrollView setContentOffset:CGPointMake(0,0) animated:NO];
+           // [self.tripleScrollView setContentOffset:CGPointZero animated:YES];
+            
+
+           // [self.tripleImageView addSubview:_finalViewWithGestures];
+            
+            
+            if ([_threeVersusFinalText.text length] == 0) {
+                [self showToast:@"Please enter the post title"];
+                
+            }
+            
+            else{
+            
+            
+            
+            if ([privateCategory isEqualToString:@"Private"]) {
+                
+                
+                
+                
+                
+                [_privateView setHidden:NO];
+                
+                
+                CGRect rectt = [_threeVersusInsideView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_threeVersusInsideView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_threeVersusInsideView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                _finalImageThreeVersusAndFour.image =capturedImaget;
+                
+                
+                
+                [_threeVersusFirstText setHidden:YES];
+                [_threeVersusSecondText setHidden:YES];
+                [_threeVersusThirdText setHidden:YES];
+                [_threeVersusVersus setHidden:YES];
+                
+                CGRect rect = [_threeVersusInsideView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_threeVersusInsideView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_threeVersusInsideView.layer renderInContext:context];
+                UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _threeVersusInsideView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageTriple= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+             
+                [_threeVersusFirstText setHidden:NO];
+                [_threeVersusSecondText setHidden:NO];
+                [_threeVersusThirdText setHidden:NO];
+                [_threeVersusVersus setHidden:NO];
+                
+               //   [self.tripleImageView willRemoveSubview:_finalViewWithGestures];
+                
+                
+            }
+            
+            else{
+     
+ 
+                
+                CGRect rectt = [_threeVersusInsideView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_threeVersusInsideView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_threeVersusInsideView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+             
+                
+       
+           
+                
+                
+                _finalImageThreeVersusAndFour.image =capturedImaget;
+                
+                
+           
+                [_finalView setHidden:NO];
+                [_finalViewImage setHidden:YES];
+                [_finalImageThreeVersusAndFour setHidden:NO];
+                
+                [_threeVersusFirstText setHidden:YES];
+                [_threeVersusSecondText setHidden:YES];
+                [_threeVersusThirdText setHidden:YES];
+                [_threeVersusVersus setHidden:YES];
+                
+                CGRect rect = [_threeVersusInsideView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_threeVersusInsideView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_threeVersusInsideView.layer renderInContext:context];
+                UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _threeVersusInsideView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageTriple= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                
+                [_threeVersusFirstText setHidden:NO];
+                [_threeVersusSecondText setHidden:NO];
+                [_threeVersusThirdText setHidden:NO];
+                [_threeVersusVersus setHidden:NO];
+                
+                
+                //  [self.tripleImageView willRemoveSubview:_finalViewWithGestures];
+                
+                
+            }
+            
+            }
+        }
+
+        
+        
+        else if ([versusButton isEqualToString:@"versusFour"]){
+            
+           [self.quadScrollView setContentOffset:CGPointMake(0,0) animated:NO];
+            if ([_fourVersusFinalText.text length] == 0) {
+                [self showToast:@"Please enter the post title"];
+                
+            }
+            
+            else{
+            
+            if ([privateCategory isEqualToString:@"Private"]) {
+                
+                
+                
+                
+                
+                [_privateView setHidden:NO];
+                
+                
+                CGRect rectt = [_fourVersusInnerView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_fourVersusInnerView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_fourVersusInnerView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                _finalImageThreeVersusAndFour.image =capturedImaget;
+                
+                
+                
+                [_fourVersusFirstText setHidden:YES];
+                [_fourVersusSecondText setHidden:YES];
+                [_fourVersusThirdText setHidden:YES];
+                [_fourVersusFourthText setHidden:YES];
+                [_fourVersusVersus setHidden:YES];
+                
+                CGRect rect = [_fourVersusInnerView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_fourVersusInnerView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_fourVersusInnerView.layer renderInContext:context];
+                UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _fourVersusInnerView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageQuadraple= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                [_fourVersusFirstText setHidden:NO];
+                [_fourVersusSecondText setHidden:NO];
+                [_fourVersusThirdText setHidden:NO];
+                [_fourVersusFourthText setHidden:NO];
+                [_fourVersusVersus setHidden:NO];
+                
+                
+            }
+            
+            else{
+                
+                
+                
+                CGRect rectt = [_fourVersusInnerView bounds];
+                UIGraphicsBeginImageContextWithOptions(rectt.size,_fourVersusInnerView.opaque,0.0f);
+                CGContextRef contextt = UIGraphicsGetCurrentContext();
+                [_fourVersusInnerView.layer renderInContext:contextt];
+                UIImage *capturedImaget = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                _finalImageThreeVersusAndFour.image =capturedImaget;
+                [_finalView setHidden:NO];
+                [_finalViewImage setHidden:YES];
+                [_finalImageThreeVersusAndFour setHidden:NO];
+                
+                [_fourVersusFirstText setHidden:YES];
+                [_fourVersusSecondText setHidden:YES];
+                [_fourVersusThirdText setHidden:YES];
+                [_fourVersusFourthText setHidden:YES];
+                [_fourVersusVersus setHidden:YES];
+                
+                CGRect rect = [_fourVersusInnerView bounds];
+                UIGraphicsBeginImageContextWithOptions(rect.size,_fourVersusInnerView.opaque,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [_fourVersusInnerView.layer renderInContext:context];
+                UIImage* capturedImageDoubleeee = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                /* Render the screen shot at custom resolution */
+                CGRect cropRect = CGRectMake(0 ,0 ,750 ,844);
+                UIGraphicsBeginImageContextWithOptions(cropRect.size, _fourVersusInnerView.opaque, 1.0f);
+                [capturedImageDoubleeee drawInRect:cropRect];
+                capturedImageQuadraple= UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                
+                
+                
+                [_fourVersusFirstText setHidden:NO];
+                [_fourVersusSecondText setHidden:NO];
+                [_fourVersusThirdText setHidden:NO];
+                [_fourVersusFourthText setHidden:NO];
+                [_fourVersusVersus setHidden:NO];
+                
+            }
+            
+            }
+        }
+     
+        
+        
+   
         
     }
 
@@ -4005,6 +4566,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 }
 
 
+
 - (UIImage *)compressForUpload:(UIImage *)original scale:(CGFloat)scale
 {
     // Calculate new size given scale factor.
@@ -4023,8 +4585,80 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 }
 
 
+
+-(UIImage *)resizeImage:(UIImage *)image
+{
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    float maxHeight = 900.0;
+    float maxWidth = 1200.0;
+    float imgRatio = actualWidth/actualHeight;
+    float maxRatio = maxWidth/maxHeight;
+    float compressionQuality = 0.2;//50 percent compression
+    
+    if (actualHeight > maxHeight || actualWidth > maxWidth)
+    {
+        if(imgRatio < maxRatio)
+        {
+            //adjust width according to maxHeight
+            imgRatio = maxHeight / actualHeight;
+            actualWidth = imgRatio * actualWidth;
+            actualHeight = maxHeight;
+        }
+        else if(imgRatio > maxRatio)
+        {
+            //adjust height according to maxWidth
+            imgRatio = maxWidth / actualWidth;
+            actualHeight = imgRatio * actualHeight;
+            actualWidth = maxWidth;
+        }
+        else
+        {
+            actualHeight = maxHeight;
+            actualWidth = maxWidth;
+        }
+    }
+    
+    CGRect rect = CGRectMake(0.0, 0.0, actualWidth, actualHeight);
+    UIGraphicsBeginImageContext(rect.size);
+    [image drawInRect:rect];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+  //  NSData *imageData = UIImageJPEGRepresentation(img, compressionQuality);
+    
+    
+    
+ //   UIImage *image = [UIImage imageNamed:@"image.png"];
+    NSData *imgData1 = UIImageJPEGRepresentation(img, compressionQuality);
+    NSLog(@"Original --- Size of Image(bytes):%lu",(unsigned long)[imgData1 length]);
+    
+    NSData *imgData2 = UIImageJPEGRepresentation(img, 0.1);
+    NSLog(@"After --- Size of Image(bytes):%lu",(unsigned long)[imgData2 length]);
+    img = [UIImage imageWithData:imgData2];
+    
+    NSData *imgData3 = UIImageJPEGRepresentation(img, 0.1);
+    
+    
+   // imgTest.image = img;
+    
+    
+    
+    
+    UIGraphicsEndImageContext();
+    
+    return [UIImage imageWithData:imgData3];
+    
+}
+
+
 -(void)callProfileView:(NSString*)strVal{
    
+    
+    CGRect screenRectt = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidthh = screenRectt.size.width;
+     CGFloat screenheight = screenRectt.size.height;
+    
+    
+    
     NSInteger categoryID;
     
     NSMutableArray * contactVal;
@@ -4106,7 +4740,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             
     
-                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self compressForUpload:capturedImageSingle scale:1.0f],1.0)
+                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self resizeImage:capturedImageSingle],1.0)
                                                   base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
                 
                 base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"/"
@@ -4154,13 +4788,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
+                                      
                                       @"info":@{
-                                   
+                                              @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":@":)", // title text
                                               @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                              @"Caption2":_singleImageRightText.text, // button2 text
+                                              @"Caption2":_singleImageRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"",// button2 text
                                               @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4182,6 +4822,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":contactVal,
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
@@ -4201,14 +4850,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
-                                              
-                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":@":)", // title text
                                               @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                              @"Caption2":_singleImageRightText.text, // button2 text
+                                              @"Caption2":_singleImageRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"",// button2 text
                                               @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4227,6 +4880,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               @"DataUrl":base64StringSingle
                                               },
                                       @"resource2Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
                                               @"DataUrl":@""
                                               },
                                       @"lstContacts":@[],
@@ -4248,15 +4910,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":@":)", // title text
                                               @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                              @"Caption2":_singleImageRightText.text, // button2 text
+                                              @"Caption2":_singleImageRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"",// button2 text
                                               @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
@@ -4275,6 +4941,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               @"DataUrl":base64StringSingle
                                               },
                                       @"resource2Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
                                               @"DataUrl":@""
                                               },
                                       @"lstContacts":@[],
@@ -4313,13 +4988,13 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             }
             
             
-            if ([_secondLeftTextField.text length]>0 && [_secondRightTextField.text length]>0) {
+            if ([versusButton isEqualToString:@"versusTwo"]) {
 //                
 //             NSString*   base64StringSingle = [UIImagePNGRepresentation([self compressForUpload:capturedImageDouble scale:1.0f])
 //                               base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
                 
                 
-                NSString*   base64StringDouble = [UIImageJPEGRepresentation([self compressForUpload:capturedImageDouble scale:1.0f],1.0)
+                NSString*   base64StringDouble = [UIImageJPEGRepresentation([self resizeImage:capturedImageDouble],1.0)
                                                   base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
                 
                 
@@ -4371,14 +5046,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                          
-                                                      @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
+                                           @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_secondLeftTextField.text, //  button 1 text
-                                                      @"Caption2":_secondRightTextField.text, // button2 text
+                                                      @"Caption2":_secondRightTextField.text,
+                                                      @"Caption3":@"", //  button 1 text
+                                                      @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4399,11 +5079,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":contactVal,
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                      @"postTypeId":[NSNumber numberWithInteger:0]
+                                      @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4418,14 +5107,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
-                                              
-                                        
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_secondLeftTextField.text, //  button 1 text
-                                                      @"Caption2":_secondRightTextField.text, // button2 text
+                                                      @"Caption2":_secondRightTextField.text,
+                                                       @"Caption3":@"",
+                                                       @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4446,11 +5139,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":@[],
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                       @"postTypeId":[NSNumber numberWithInteger:0]
+                                       @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4465,14 +5167,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
-                                              
-                                             
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_secondLeftTextField.text, //  button 1 text
-                                                      @"Caption2":_secondRightTextField.text, // button2 text
+                                                      @"Caption2":_secondRightTextField.text,
+                                                      @"Caption3":@"",
+                                                      @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
@@ -4493,11 +5199,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":@[],
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                       @"postTypeId":[NSNumber numberWithInteger:0]
+                                       @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4511,9 +5226,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
             }
             
-            else{
+            else if([versusButton isEqualToString:@"versusOne"]){
                 
-                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self compressForUpload:capturedImageSingle scale:1.0f],1.0)
+                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self resizeImage:capturedImageSingle],1.0)
                                                   base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
                 
                 base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"/"
@@ -4564,15 +5279,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                            
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                                      @"Caption2":_singleImageRightText.text, // button2 text
+                                                      @"Caption2":_singleImageRightText.text,
+                                                      @"Caption3":@"",
+                                                      @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4593,11 +5312,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":contactVal,
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                      @"postTypeId":[NSNumber numberWithInteger:0]
+                                      @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4612,14 +5340,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
-                                              
-                                           
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                                      @"Caption2":_singleImageRightText.text, // button2 text
+                                                      @"Caption2":_singleImageRightText.text,
+                                                      @"Caption3":@"",
+                                                      @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -4640,11 +5372,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":@[],
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                       @"postTypeId":[NSNumber numberWithInteger:0]
+                                       @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4659,15 +5400,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                             
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_finalTitleLabelText.text, // title text
                                                       @"Caption1":_singleImageLeftText.text, //  button 1 text
-                                                      @"Caption2":_singleImageRightText.text, // button2 text
+                                                      @"Caption2":_singleImageRightText.text,
+                                                      @"Caption3":@"",
+                                                      @"Caption4":@"",// button2 text
                                                       @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                                       @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                                       @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
@@ -4688,11 +5433,20 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"resource2Info":@{
                                               @"DataUrl":@""
                                               },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
                                       @"lstContacts":@[],
                                       @"isPicture":[NSNumber numberWithInt:1],
                                       @"isVideo":[NSNumber numberWithInt:0],
                                       @"isAudio":[NSNumber numberWithInt:0],
-                                       @"postTypeId":[NSNumber numberWithInteger:0]
+                                       @"postTypeId":[NSNumber numberWithInteger:1]
                                       
                                       
                                       };
@@ -4708,7 +5462,579 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             
             
             
+            else if([versusButton isEqualToString:@"versusThree"]){
+                
+                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self resizeImage:capturedImageTriple],1.0)
+                                                  base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"/"
+                                                                                   withString:@"_"];
+                
+                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"+"
+                                                                                   withString:@"-"];
+                
+                NSString*   base64StringSingleFirst = [UIImageJPEGRepresentation([self resizeImage:_threeVersusFirstImage.image],0.1)
+                                                  base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleFirst = [base64StringSingleFirst stringByReplacingOccurrencesOfString:@"/"
+                                                                                   withString:@"_"];
+                
+                base64StringSingleFirst = [base64StringSingleFirst stringByReplacingOccurrencesOfString:@"+"
+                                                                                   withString:@"-"];
+                
+                
+                
+                NSString*   base64StringSingleSecond = [UIImageJPEGRepresentation([self resizeImage:_threeVersusSecondImage.image],0.1)
+                                                       base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleSecond = [base64StringSingleSecond stringByReplacingOccurrencesOfString:@"/"
+                                                                                             withString:@"_"];
+                
+                base64StringSingleSecond = [base64StringSingleSecond stringByReplacingOccurrencesOfString:@"+"
+                                                                                             withString:@"-"];
+                
+                
+                
+                NSString*   base64StringSingleThird = [UIImageJPEGRepresentation([self resizeImage:_threeVerusThirdImage.image],0.1)
+                                                        base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleThird = [base64StringSingleThird stringByReplacingOccurrencesOfString:@"/"
+                                                                                               withString:@"_"];
+                
+                base64StringSingleThird = [base64StringSingleThird stringByReplacingOccurrencesOfString:@"+"
+                                                                                               withString:@"-"];
+                
+                
+                
+              
+//                NSData *imgData= UIImageJPEGRepresentation(rainyImage,0.1 /*compressionQuality*/);
 
+                
+                
+                
+                
+                
+                //                NSString*   base64StringDouble = [UIImagePNGRepresentation([self compressForUpload:capturedImageDouble scale:0.1f])
+                //                                                  base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+                //
+                //
+                
+                
+                if ([privateCategory isEqualToString:@"Private"]) {
+                    
+                    if(cellSelected.count > 0){
+                        
+                        contactVal = [[NSMutableArray alloc]init];
+                        
+                        
+                        
+                        
+                        for (int i = 0; i<cellSelected.count; i++) {
+                            
+                            NSMutableDictionary * testVal = [[NSMutableDictionary alloc]init];
+                            
+                            
+                            [testVal setObject:[[cellSelected objectAtIndex:i] valueForKey:@"ContactToken"] forKey:@"ContactToken"];
+                            
+                            
+                            [contactVal addObject:testVal];
+                            
+                            
+                        }
+                        
+                        
+                        
+                    }
+                    
+                    
+                    
+                    
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      
+                                      @"info":@{
+                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_threeVersusFinalText.text, // title text
+                                              @"Caption1":_threeVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_threeVersusSecondText.text,
+                                              @"Caption3":_threeVersusThirdText.text,// button2 text
+                                              @"Caption4":@"",// button2 text
+                                              @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"lstContacts":contactVal,
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:3]
+                                      
+                                      
+                                      };
+                    
+                    
+                    
+                }
+                
+                else if ([privateCategory isEqualToString:@"Country"]){
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      
+                                      @"info":@{
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_threeVersusFinalText.text, // title text
+                                              @"Caption1":_threeVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_threeVersusSecondText.text,
+                                              @"Caption3":_threeVersusThirdText.text,// button2 text
+                                              @"Caption4":@"",
+                                              @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"lstContacts":@[],
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:3]
+                                      
+                                      
+                                      };
+                    
+                    
+                    
+                }
+                
+                else{
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      @"info":@{
+                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_threeVersusFinalText.text, // title text
+                                              @"Caption1":_threeVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_threeVersusSecondText.text,
+                                              @"Caption3":_threeVersusThirdText.text,// button2 text
+                                              @"Caption4":@"",
+                                              @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"lstContacts":@[],
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:3]
+                                      
+                                      
+                                      };
+                }
+                
+                
+             
+                
+                
+            }
+
+            
+            
+            
+            else if([versusButton isEqualToString:@"versusFour"]){
+                
+                NSString*   base64StringSingle = [UIImageJPEGRepresentation([self resizeImage:capturedImageQuadraple],1.0)
+                                                  base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"/"
+                                                                                   withString:@"_"];
+                
+                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"+"
+                                                                                   withString:@"-"];
+                
+                
+                NSString*   base64StringSingleFirst = [UIImageJPEGRepresentation([self resizeImage:_fourVersusFirstImage.image],0.3)
+                                                  base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleFirst = [base64StringSingleFirst stringByReplacingOccurrencesOfString:@"/"
+                                                                                   withString:@"_"];
+                
+                base64StringSingleFirst = [base64StringSingleFirst stringByReplacingOccurrencesOfString:@"+"
+                                                                                   withString:@"-"];
+                
+                
+                
+                
+                NSString*   base64StringSingleSecond = [UIImageJPEGRepresentation([self resizeImage:_fourVersusSecondImage.image],0.3)
+                                                       base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleSecond = [base64StringSingleSecond stringByReplacingOccurrencesOfString:@"/"
+                                                                                   withString:@"_"];
+                
+                base64StringSingleSecond = [base64StringSingleSecond stringByReplacingOccurrencesOfString:@"+"
+                                                                                   withString:@"-"];
+                
+                
+                
+                NSString*   base64StringSingleThird = [UIImageJPEGRepresentation([self resizeImage:_fourVersusThirdImage.image],0.3)
+                                                        base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleThird = [base64StringSingleThird stringByReplacingOccurrencesOfString:@"/"
+                                                                                               withString:@"_"];
+                
+                base64StringSingleThird = [base64StringSingleThird stringByReplacingOccurrencesOfString:@"+"
+                                                                                               withString:@"-"];
+                
+                
+                NSString*   base64StringSingleFourth = [UIImageJPEGRepresentation([self resizeImage:_fourVersusFourthImage.image],0.3)
+                                                       base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+                
+                base64StringSingleFourth = [base64StringSingleFourth stringByReplacingOccurrencesOfString:@"/"
+                                                                                             withString:@"_"];
+                
+                base64StringSingleFourth = [base64StringSingleFourth stringByReplacingOccurrencesOfString:@"+"
+                                                                                             withString:@"-"];
+                
+                
+                
+                
+                
+                
+//                
+//                
+//                NSString*   fourVersusFirstImage = [UIImageJPEGRepresentation([self compressForUpload:_fourVersusFirstImage scale:1.0f],1.0)
+//                                                  base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+//                
+//                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"/"
+//                                                                                   withString:@"_"];
+//                
+//                base64StringSingle = [base64StringSingle stringByReplacingOccurrencesOfString:@"+"
+//                                                                                   withString:@"-"];
+//                
+//                
+//                
+                
+                
+                
+                
+                
+                
+                
+                //                NSString*   base64StringDouble = [UIImagePNGRepresentation([self compressForUpload:capturedImageDouble scale:0.1f])
+                //                                                  base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+                //
+                //
+                
+                
+                if ([privateCategory isEqualToString:@"Private"]) {
+                    
+                    if(cellSelected.count > 0){
+                        
+                        contactVal = [[NSMutableArray alloc]init];
+                        
+                        
+                        
+                        
+                        for (int i = 0; i<cellSelected.count; i++) {
+                            
+                            NSMutableDictionary * testVal = [[NSMutableDictionary alloc]init];
+                            
+                            
+                            [testVal setObject:[[cellSelected objectAtIndex:i] valueForKey:@"ContactToken"] forKey:@"ContactToken"];
+                            
+                            
+                            [contactVal addObject:testVal];
+                            
+                            
+                        }
+                        
+                        
+                        
+                    }
+                    
+                    
+                    
+                    
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      
+                                      @"info":@{
+                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_fourVersusFinalText.text, // title text
+                                              @"Caption1":_fourVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_fourVersusSecondText.text,
+                                              @"Caption3":_fourVersusThirdText.text, //  button 1 text
+                                              @"Caption4":_fourVersusFourthText.text,// button2 text
+                                              @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":base64StringSingleFourth
+                                              },
+                                      @"lstContacts":contactVal,
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:4]
+                                      
+                                      
+                                      };
+                    
+                    
+                    
+                }
+                
+                else if ([privateCategory isEqualToString:@"Country"]){
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      
+                                      @"info":@{
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_fourVersusFinalText.text, // title text
+                                              @"Caption1":_fourVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_fourVersusSecondText.text,
+                                              @"Caption3":_fourVersusThirdText.text, //  button 1 text
+                                              @"Caption4":_fourVersusFourthText.text, // button2 text
+                                              @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":base64StringSingleFourth
+                                              },
+                                      @"lstContacts":@[],
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:4]
+                                      
+                                      
+                                      };
+                    
+                    
+                    
+                }
+                
+                else{
+                    
+                    jsonDictionary =@{
+                                      
+                                      @"isWeb":@"false",
+                                      
+                                      
+                                      @"info":@{
+                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
+                                              @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
+                                              @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
+                                              @"Title":_fourVersusFinalText.text, // title text
+                                              @"Caption1":_fourVersusFirstText.text, //  button 1 text
+                                              @"Caption2":_fourVersusSecondText.text,
+                                              @"Caption3":_fourVersusThirdText.text, //  button 1 text
+                                              @"Caption4":_fourVersusFourthText.text, // button2 text
+                                              @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
+                                              @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
+                                              @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
+                                              @"CategoryId":[NSNumber numberWithInteger:categoryID], //1 /2 /3
+                                              @"Duration":[NSNumber numberWithInteger:durationInt], //duration converted to minutes
+                                              @"Lat":latVall, //location latitude
+                                              @"Long":longVall, //location longitude
+                                              @"LocationName":placeName, //location name text
+                                              @"HashTags":hashArrrray, //hashtags text with comma separated
+                                              @"lstUsers":[NSNull null] //tagged users token with comma separated
+                                              // finish infoObj
+                                              
+                                              
+                                              },
+                                      @"resource1Info":@{
+                                              @"DataUrl":base64StringSingle
+                                              },
+                                      @"resource2Info":@{
+                                              @"DataUrl":base64StringSingleFirst
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":base64StringSingleSecond
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":base64StringSingleThird
+                                              },
+                                      @"resource5Info":@{
+                                              @"DataUrl":base64StringSingleFourth
+                                              },
+                                      @"lstContacts":@[],
+                                      @"isPicture":[NSNumber numberWithInt:1],
+                                      @"isVideo":[NSNumber numberWithInt:0],
+                                      @"isAudio":[NSNumber numberWithInt:0],
+                                      @"postTypeId":[NSNumber numberWithInteger:4]
+                                      
+                                      
+                                      };
+                }
+                
+                
+                
+                
+                
+            }
+            
+            
+            
             
         }
         
@@ -4797,10 +6123,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                            
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -4853,10 +6181,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                           
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -4901,10 +6231,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                           
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -4996,9 +6328,11 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
-                                              
-                                    
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -5043,10 +6377,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                           
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -5091,10 +6427,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                            
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                                       @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                                       @"Title":_voiceTypeYourQuestionTitle.text, // title text
@@ -5423,13 +6761,17 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"info":@{
                                               
-                                              
-                                              
+                                             
+                                              @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":_voiceTypeYourQuestionTitle.text, // title text
                                               @"Caption1":_singleVoiceLeftText.text, //  button 1 text
-                                              @"Caption2":_singleVoiceRightText.text, // button2 text
+                                              @"Caption2":_singleVoiceRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"",// button2 text
                                               @"ToContacts":[NSNumber numberWithInt:1], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:1], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -5448,6 +6790,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               @"DataUrl":base64StringOne
                                               },
                                       @"resource2Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
                                               @"DataUrl":@""
                                               },
                                       @"lstContacts":contactVal,
@@ -5472,15 +6823,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":_voiceTypeYourQuestionTitle.text, // title text
                                               @"Caption1":_singleVoiceLeftText.text, //  button 1 text
-                                              @"Caption2":_singleVoiceRightText.text, // button2 text
+                                              @"Caption2":_singleVoiceRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"",// button2 text
                                               @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:0],  // ill explain this by call
@@ -5496,19 +6851,21 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               
                                               },
                                       
-                                      
-                                      
-                                      
-                                      
-                                      
-                                      
-                                      
-                                      
+                          
                                       
                                       @"resource1Info":@{
                                               @"DataUrl":base64StringOne
                                               },
                                       @"resource2Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
                                               @"DataUrl":@""
                                               },
                                       @"lstContacts":@[],
@@ -5530,15 +6887,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"isWeb":@"false",
                                       
+                                      
                                       @"info":@{
                                               
-                                              
-                                              
+                                               @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
+                                              @"ScreenHeight":[NSNumber numberWithInt:screenheight],
+                                              @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
                                               @"TerritoryId":[NSNumber numberWithInt:0], //send always 0
                                               @"Title":_voiceTypeYourQuestionTitle.text, // title text
                                               @"Caption1":_singleVoiceLeftText.text, //  button 1 text
-                                              @"Caption2":_singleVoiceRightText.text, // button2 text
+                                              @"Caption2":_singleVoiceRightText.text,
+                                              @"Caption3":@"", //  button 1 text
+                                              @"Caption4":@"", // button2 text
                                               @"ToContacts":[NSNumber numberWithInt:0], // ill explain this by call
                                               @"ToSelectedContacts":[NSNumber numberWithInt:0], //ill explain this by call
                                               @"IsGlobal":[NSNumber numberWithInt:1],  // ill explain this by call
@@ -5557,6 +6918,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               @"DataUrl":base64StringOne
                                               },
                                       @"resource2Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource3Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource4Info":@{
+                                              @"DataUrl":@""
+                                              },
+                                      @"resource5Info":@{
                                               @"DataUrl":@""
                                               },
                                       @"lstContacts":@[],
@@ -5599,7 +6969,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
         
         NSLog(@"JSON OUTPUT: %@",JSONString);
         
-        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/addpost_N4"]];
+        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/addpost_z1"]];
         
         
         [requestPost setHTTPMethod:@"POST"];
@@ -5624,6 +6994,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
         [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *dataa, NSError *error) {
             if (error) {
                 //do something with error
+                [GMDCircleLoader hideFromView:newVieww animated:YES];
+                [newVieww removeFromSuperview];
             } else {
                 
                 NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:dataa options:0 error:nil];
@@ -5654,6 +7026,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                         finalLong = @"";
                          flashString = @"";
                         _finalTitleLabelText.text=@"";
+                        _threeVersusFinalText.text=@"";
+                        _fourVersusFinalText.text=@"";
                         [_voiceLabel setHidden:YES];
                         [_cameraLabel setHidden:NO];
                           [_versusButtonsView setHidden:NO];
@@ -5666,6 +7040,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                         
                         [_doubleImageView setHidden:YES];
                         [_finalViewWithGestures setHidden:YES];
+                        [_threeversusFinalViewWithGestures setHidden:YES];
+                        [_fourVersusFinalGestures setHidden:YES];
                         
                         [_imageViewTypeYourQuestion setHidden:NO];
                         [_capturedView setHidden:YES];
@@ -5703,6 +7079,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                         voiceVal=@"";
                         
                         _finalTitleLabelText.text=@"";
+                         _threeVersusFinalText.text=@"";
+                         _fourVersusFinalText.text=@"";
                         
                         [self dismissViewControllerAnimated:YES completion:nil];
                         
@@ -5928,7 +7306,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
    
     
      UIImageView*imgOne = (UIImageView*)[cell viewWithTag:300];
-    [imgOne  sd_setImageWithURL:[NSURL URLWithString:imgStr] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+    [imgOne  sd_setImageWithURL:[NSURL URLWithString:imgStr] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
         
         return cell;
      }
@@ -6012,7 +7390,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                 
                                 imageviews.layer.borderWidth=0;
                                 imageviews.layer.masksToBounds = YES;
-                                [imageviews  sd_setImageWithURL:[NSURL URLWithString:imgURL] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+                                [imageviews  sd_setImageWithURL:[NSURL URLWithString:imgURL] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"] options:SDWebImageRefreshCached];
                             });
                             
                         }
@@ -7175,7 +8553,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     
     
-   [_heyMoodPic  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+   [_heyMoodPic  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
     _heyMoodTextView.text = @"";
       _finalViewImage.image = nil;
     [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"savedVideo"];
@@ -7206,8 +8584,10 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
       [_capturedView setHidden:NO];
     [_heyMoodView setHidden:NO];
     [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
     [_imageViewTypeYourQuestion setHidden:YES];
-    
+    cameraVal = @"newVal";
     
     
 }
@@ -7287,13 +8667,33 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
 - (IBAction)versusOne:(id)sender {
      versusButton = @"versusOne";
-    
+//     _secondImageView.image = nil;
+//    _threeVersusSecondImage.image = nil;
+//    _threeVerusThirdImage.image = nil;
+//    _fourVersusSecondImage.image = nil;
+//    _fourVersusThirdImage.image = nil;
+//    _fourVersusFourthImage.image = nil;
     [_doubleImageView setHidden:YES];
      [_tripleImageView setHidden:YES];
      [_quadrapleImagesView setHidden:YES];
     
+
+    
+    _finalTitleLabelText.text = @"";
+     _threeVersusFinalText.text = @"";
+     _fourVersusFinalText.text = @"";
     
     
+    
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
+    
+    [_imageViewTypeYourQuestion setHidden:NO];
+    _imageViewTypeYourQuestionText.text = @"";
+    
+   
+
     
     
 }
@@ -7305,7 +8705,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_tripleImageView setHidden:YES];
     [_quadrapleImagesView setHidden:YES];
     
+    _finalTitleLabelText.text = @"";
+    _threeVersusFinalText.text = @"";
+    _fourVersusFinalText.text = @"";
     
+    
+    
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
+    
+    [_imageViewTypeYourQuestion setHidden:NO];
+    _imageViewTypeYourQuestionText.text = @"";
     
 }
 
@@ -7316,6 +8727,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_tripleImageView setHidden:NO];
     [_quadrapleImagesView setHidden:YES];
     
+    _finalTitleLabelText.text = @"";
+    _threeVersusFinalText.text = @"";
+    _fourVersusFinalText.text = @"";
+    
+    
+    
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
+    
+    [_imageViewTypeYourQuestion setHidden:NO];
+    _imageViewTypeYourQuestionText.text = @"";
    }
 
 - (IBAction)versusFour:(id)sender {
@@ -7325,7 +8748,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [_tripleImageView setHidden:YES];
     [_quadrapleImagesView setHidden:NO];
     
-       
+    _finalTitleLabelText.text = @"";
+    _threeVersusFinalText.text = @"";
+    _fourVersusFinalText.text = @"";
+    
+    
+    
+    [_finalViewWithGestures setHidden:YES];
+    [_threeversusFinalViewWithGestures setHidden:YES];
+    [_fourVersusFinalGestures setHidden:YES];
+    
+    [_imageViewTypeYourQuestion setHidden:NO];
+    _imageViewTypeYourQuestionText.text = @"";
     
 }
 

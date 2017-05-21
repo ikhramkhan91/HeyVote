@@ -14,6 +14,15 @@
 #import "UIView+Toast.h"
 #import "WebServiceUrl.h"
 
+
+
+#import "ALAssetsLibrary+CustomPhotoAlbum.h"
+#import "GetPostDetailsViewController.h"
+
+
+
+
+
 @interface notificationsViewController (){
     
     
@@ -23,11 +32,15 @@
 
 @end
 
+
 @implementation notificationsViewController
+@synthesize library;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+   
     
     arrayVal = [[NSMutableArray alloc]init];
     
@@ -37,7 +50,7 @@
         [self callWebService:newVal];
     }
     
- 
+    library = [[ALAssetsLibrary alloc]init];
     
 }
 
@@ -219,6 +232,8 @@
         [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
             if (error) {
                 //do something with error
+                [GMDCircleLoader hideFromView:newView animated:YES];
+                [newView removeFromSuperview];
             } else {
                 
                 NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -295,6 +310,61 @@
     
     
     
+}
+
+
+
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:
+(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    
+    
+  
+    
+    
+    NSLog(@"imageURL : %@",[NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[arrayVal valueForKey:@"Image1Idf"] objectAtIndex:indexPath.row],[[arrayVal valueForKey:@"FolderPath"] objectAtIndex:indexPath.row]]);
+    
+    
+    
+    
+    // Post a notification to loginComplete
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"getPostPush" object:[[arrayVal valueForKey:@"PostId"] objectAtIndex:indexPath.row]];
+
+     [self dismissViewControllerAnimated:YES completion:nil];
+    
+   //  UIImageView * imgOnePost = (UIImageView*)[cell viewWithTag:13];
+    
+    
+  
+//    
+//    [self.library saveImage:imgOnePost.image toAlbum:@"HeyVote" withCompletionBlock:^(NSError *error) {
+//        if (error!=nil) {
+//            // NSLog(@"Big error: %@", [error description]);
+//        }
+//    }];
+
+
+}
+
+
+
+-(void)PushAnimation
+{
+    CATransition* transition = [CATransition animation];
+    
+    transition.duration = 0.0f;
+    
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    
+    transition.type = kCATransitionFade; //kCATransitionMoveIn; //, kCATransitionPush, kCATransitionReveal, kCATransitionFade
+    
+    transition.subtype = kCATransitionFromRight; //kCATransitionFromLeft, kCATransitionFromRight, kCATransitionFromTop, kCATransitionFromBottom
+    
+    
+    
+    [self.navigationController.view.layer addAnimation:transition forKey:kCATransition];
 }
 
 

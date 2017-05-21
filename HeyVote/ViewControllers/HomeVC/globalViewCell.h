@@ -124,6 +124,77 @@
 
 - (void) createPlayerWithURLForAudio:(NSURL*)url;
 
+@property (weak, nonatomic) IBOutlet UIView *threeVersusYesNoMainView;
+@property (weak, nonatomic) IBOutlet UIView *threeVersusYesNoNotDoneButton;
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusRightButton;
+- (IBAction)threeVersusRightButton:(id)sender;
+@property (weak, nonatomic) IBOutlet UIView *threeVersusYesNoButtonView;
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusRightResultButton;
+- (IBAction)threeVersusRightResultButton:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *threeVersusVotesLabelRight;
+@property (weak, nonatomic) IBOutlet UIImageView *threeVersusRightWinnerImage;
+
+
+
+
+@property (weak, nonatomic) IBOutlet UIView *threeVersusFirstSecondYesNoMainView;
+@property (weak, nonatomic) IBOutlet UIView *threeVersusFirstSecondNotDoneView;
+
+@property (weak, nonatomic) IBOutlet UIView *threeVersusFirstSecondYesNoView;
+
+
+
+
+
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusFirstSecondLeftButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusFirstSecondRightButton;
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusFinalLeftButton;
+@property (weak, nonatomic) IBOutlet UIButton *threeVersusFinalRightButton;
+@property (weak, nonatomic) IBOutlet UILabel *threeVersusFinalLeftVote;
+
+@property (weak, nonatomic) IBOutlet UILabel *threeVersusFinalRightVote;
+@property (weak, nonatomic) IBOutlet UIImageView *threeVersusFinalWinnerLeft;
+@property (weak, nonatomic) IBOutlet UIImageView *threeVersusFinalWinnerRight;
+@property (weak, nonatomic) IBOutlet UILabel *fourVersusFinalRightVote;
+
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFinalRightButton;
+
+@property (weak, nonatomic) IBOutlet UILabel *fourVersusFinalLeftVote;
+@property (weak, nonatomic) IBOutlet UIImageView *fourVersusLeftWinnerImage;
+
+@property (weak, nonatomic) IBOutlet UIView *fourVersusFirstSecondMainView;
+@property (weak, nonatomic) IBOutlet UIImageView *fourVersusRightWinnerImage;
+
+@property (weak, nonatomic) IBOutlet UIView *fourVersusFirstSecondNotDoneView;
+@property (weak, nonatomic) IBOutlet UIImageView *fourVersusFirstSecondLeftWinnerImage;
+@property (weak, nonatomic) IBOutlet UIImageView *fourVersusFirstSecondRightWinnerImage;
+
+@property (weak, nonatomic) IBOutlet UIView *fourVersusFirstSecondButtonView;
+
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFirstSecondLeftButton;
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFirstSecondRightButton;
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFirstSecondFinalRightButton;
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFirstSecondFinalLeftButton;
+
+@property (weak, nonatomic) IBOutlet UIView *fourVersusButtonView;
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusFinalLeftButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusLeftButton;
+@property (weak, nonatomic) IBOutlet UIButton *fourVersusRightButton;
+
+
+
+@property (weak, nonatomic) IBOutlet UILabel *fourVersusFirstSecondLeftVote;
+@property (weak, nonatomic) IBOutlet UILabel *fourVersusFirstSecondRightVote;
+@property (weak, nonatomic) IBOutlet UIView *fourVersusNotDoneView;
+
+@property (weak, nonatomic) IBOutlet UIImageView *fourVersusZeroComment;
+
+
+@property (weak, nonatomic) IBOutlet UIView *fourVersusMainView;
+@property (weak, nonatomic) IBOutlet UIImageView *threeVersusZeroComment;
+
 
 
 @end

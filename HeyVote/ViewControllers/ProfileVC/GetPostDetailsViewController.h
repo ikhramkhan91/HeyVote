@@ -17,6 +17,8 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
 #import "THCircularProgressView.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+
 
 @interface GetPostDetailsViewController : UIViewController<UITableViewDataSource,
 UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelegate,UICollectionViewDelegate,UICollectionViewDataSource>{
@@ -24,6 +26,9 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
     UILabel *footerLabel;
     int secondsLeft;
 }
+
+
+@property (strong, nonatomic) ALAssetsLibrary *library;
 @property (weak, nonatomic) IBOutlet UIView *secondHeader;
 @property (weak, nonatomic) IBOutlet UISlider *homeSliderTwo;
 - (IBAction)homwSliderTwo:(id)sender;
@@ -34,6 +39,7 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 @property (weak, nonatomic) IBOutlet UIButton *seriousButton;
 @property (weak, nonatomic) IBOutlet UIButton *generalButton;
 @property (weak, nonatomic) IBOutlet UILabel *hashTagTextLabel;
+- (IBAction)downloadImageButton:(id)sender;
 
 
 - (IBAction)CheckInButton:(id)sender;

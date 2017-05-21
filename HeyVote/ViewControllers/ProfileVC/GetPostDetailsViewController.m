@@ -14,6 +14,7 @@
 #import "CommentVC.h"
 #import "heyVoteProfileVC.h"
 #import "profileViewController.h"
+#import "ALAssetsLibrary+CustomPhotoAlbum.h"
 
 
 @interface GetPostDetailsViewController (){
@@ -62,6 +63,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+     _library = [[ALAssetsLibrary alloc]init];
     
     
     //    nameArr = [NSMutableArray arrayWithObjects: @"Jill Valentine", @"Peter Griffin", @"Meg Griffin", @"Jack Lolwut",
@@ -217,6 +220,8 @@
             [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                 if (error) {
                     //do something with error
+                    [GMDCircleLoader hideFromView:newView animated:YES];
+                    [newView removeFromSuperview];
                 } else {
                     NSMutableArray* newwVal = [[NSMutableArray alloc]init];
                     NSDictionary*dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -358,6 +363,8 @@
             [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                 if (error) {
                     //do something with error
+                    [GMDCircleLoader hideFromView:newView animated:YES];
+                    [newView removeFromSuperview];
                 } else {
                     NSMutableArray* newwVal = [[NSMutableArray alloc]init];
                     NSDictionary*dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -427,6 +434,9 @@
     [super viewWillAppear:YES];
     
     commentViewVal = @"";
+    
+    
+   
     
     
 }
@@ -772,7 +782,7 @@
     NSInteger newValF;
     NSInteger tabHeight = 0;
     
-    if (globalArray.count >0) {
+    if (globalArray.count >0 ) {
         
     
         if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
@@ -6585,6 +6595,8 @@
                 [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                     if (error) {
                         //do something with error
+                        [GMDCircleLoader hideFromView:newView animated:YES];
+                        [newView removeFromSuperview];
                     } else {
                         
                         NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -7433,7 +7445,7 @@
                         
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                             
-                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                             
                             
                             
@@ -7837,7 +7849,7 @@
                         
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                             
-                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                             
                             
                             
@@ -9750,7 +9762,7 @@
                 
                 NSLog(@"JSON OUTPUT: %@",JSONString);
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                     
                     
                     
@@ -9899,7 +9911,7 @@
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     
-                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                     
                     
                     
@@ -10038,6 +10050,26 @@
     [_myTableView setUserInteractionEnabled:YES];
     [_zoomView setHidden:YES];
 }
+- (IBAction)downloadImageButton:(id)sender {
+    
+    
+     [self showToast:@"Download Complete"];
+    
+   //   UIImageView * imgOnePost = (UIImageView*)[cell viewWithTag:13];
+    
+    
+    
+    
+        [self.library saveImage:_zoomImageView.image toAlbum:@"HeyVote" withCompletionBlock:^(NSError *error) {
+            if (error!=nil) {
+                // NSLog(@"Big error: %@", [error description]);
+            }
+        }];
+
+    
+    
+}
+
 - (IBAction)CheckInButton:(id)sender {
 }
 

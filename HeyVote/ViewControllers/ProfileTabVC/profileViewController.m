@@ -18,6 +18,7 @@
 #import "myBlockListViewController.h"
 
 #import "scannerViewController.h"
+#import "GetPostDetailsViewController.h"
 
 @interface profileViewController ()
 
@@ -28,6 +29,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(showMainMenuForGetPost:)
+                                                 name:@"getPostPush" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -39,6 +44,12 @@
 -(void)viewWillAppear:(BOOL)animated{
     
     [super viewWillAppear:YES];
+    
+    
+    
+    
+    
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(showMainMenu:)
                                                  name:@"loginComplete" object:nil];
@@ -51,6 +62,21 @@
     [self PushAnimation];
     [self.navigationController pushViewController:myVC animated:NO];
 }
+
+
+- (void)showMainMenuForGetPost:(NSNotification *)note {
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
+    myVC.postIdVal = note.object;
+    [self PushAnimation];
+    [self.navigationController pushViewController:myVC animated:NO];
+    
+    
+    
+    
+}
+
 
 /*
 #pragma mark - Navigation

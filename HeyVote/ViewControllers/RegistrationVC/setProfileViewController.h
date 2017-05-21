@@ -22,6 +22,7 @@
 @property (weak, nonatomic) IBOutlet UIView *reenterEmailView;
 @property (weak, nonatomic) IBOutlet UITextField *reenterEmailText;
 - (IBAction)reenterEmailButton:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *otherLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *funLabel;
 @property (weak, nonatomic) IBOutlet UILabel *seriousLabel;
@@ -50,5 +51,6 @@
 - (IBAction)ageButtonTwo:(id)sender;
 - (IBAction)ageButtonThree:(id)sender;
 - (IBAction)ageButtonFour:(id)sender;
+- (IBAction)otherButton:(id)sender;
 
 @end

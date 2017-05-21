@@ -32,6 +32,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *writeAcommentLabel;
 
 @property (nonatomic)  NSInteger valueId;
+
+@property (nonatomic)  NSInteger postId;
+
 - (IBAction)viewProfileButton:(id)sender;
 
 @end

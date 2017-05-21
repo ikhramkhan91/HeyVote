@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "homeViewController.h"
 
+
 @interface AppDelegate ()
 
 @end
@@ -17,13 +18,15 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+        [Fabric with:@[[Crashlytics class]]];
    
     _stringValss = @"firstTime";
      [self methodForAPNS:application];
     
     // Override point for customization after application launch.
     
- // [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+  [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"Existing"]isEqualToString:@"Existing"]) {
 
@@ -34,36 +37,48 @@
         [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"] animated:NO];
         
     }
+
+//    
+//    UIApplicationShortcutItem *item1 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic1" localizedTitle:@"Easy Post" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeCompose] userInfo:nil];
+//    UIApplicationShortcutItem *item2 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic2" localizedTitle:@"Notifications" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeMessage] userInfo:nil];
+//    UIApplicationShortcutItem *item3 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic3" localizedTitle:@"My Profile" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeContact] userInfo:nil];
+//    
+//    [[UIApplication sharedApplication] setShortcutItems: @[ item1, item2, item3 ]];
+
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
+    {
+        //[application registerForRemoteNotifications];
+        
+         if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+         {
+             [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+             [[UIApplication sharedApplication] registerForRemoteNotifications];
+         }
+         else
+         {
+             [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+              (UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert)];
+         }
+    }
+//
+    
     
 
-    // PLACE YOUR APP LAUNCH CODE HERE
-//    
-//    UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
-//    [self.window addSubview:imageView];
-// 
-//    [UIView transitionWithView:self.window
-//                      duration:4.00f
-//                       options:UIViewAnimationOptionCurveEaseInOut
-//                    animations:^(void){
-//                        imageView.alpha = 0.0f;
-//                    }
-//                    completion:^(BOOL finished){
-//                        [imageView removeFromSuperview];
-//                    }];
-
-
-
-
-//
-//    [UIView animateWithDuration:4.0 animations:^{
-//        imageView.alpha = 0.0;
-//        [imageView removeFromSuperview];
-//    }];
-//
-//    
+    
 
     return YES;
 }
+
+
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
+{
+    NSLog(@"%@-%@-%@", shortcutItem.type, shortcutItem.localizedTitle, shortcutItem.localizedSubtitle);
+    
+    completionHandler(YES);
+}
+
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -162,28 +177,42 @@
 didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 
 {
+    
+    
+    
+    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"NSUserDefault_DeviceToken"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    
     NSString *devToken = [[deviceToken description] stringByTrimmingCharactersInSet: [NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     devToken = [devToken stringByReplacingOccurrencesOfString:@" " withString:@""];
     [[NSUserDefaults standardUserDefaults] setObject:devToken forKey:@"NSUserDefault_DeviceToken"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    
+    NSLog(@"checkkkkkkkk : %@",devToken);
+    
+    
 }
 
 
-
-- (void)application:(UIApplication *)application
-
-didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-
+- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
 {
+    NSLog(@"Failed to get token, error: %@", error.description);
     
     
+
     
 }
+
+
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 
 {
     
-    NSLog(@"%d",[[[userInfo objectForKey:@"aps"] objectForKey: @"badgecount"] intValue]);
+    NSLog(@"testingggggg%d",[[[userInfo objectForKey:@"aps"] objectForKey: @"badgecount"] intValue]);
     [UIApplication sharedApplication].applicationIconBadgeNumber = [[[userInfo objectForKey:@"aps"] objectForKey: @"badgecount"] intValue];
     
 }

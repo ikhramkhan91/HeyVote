@@ -333,27 +333,50 @@
     // Set the label text to the value of the slider as it changes
     //   self.label.text = [NSString stringWithFormat:@"%f", self.slider.value];
     
-    if (self.genderSlider.value > 30 ) {
-        self.genderSlider.value = 100;
+    
+    if (self.genderSlider.value > 15 && self.genderSlider.value < 60) {
+        self.genderSlider.value = 45;
+        
         genderID = @"2";
-       
+        
         
         _maleLabel.textColor = [UIColor lightGrayColor];
+        _otherLabel.textColor = [UIColor lightGrayColor];
         _femaleLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
-
+        
     }
     
-    else if (self.genderSlider.value <80 ) {
+
+    
+    
+    else if (self.genderSlider.value <35 ) {
         self.genderSlider.value = 0;
         genderID = @"1";
       
         
         _femaleLabel.textColor = [UIColor lightGrayColor];
+        _otherLabel.textColor = [UIColor lightGrayColor];
         _maleLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
         
 
     }
+    
+    else  if (self.genderSlider.value > 55 && self.genderSlider.value < 100 ) {
+        self.genderSlider.value = 100;
+        
+         genderID = @"1";
+        
+        
+        _femaleLabel.textColor = [UIColor lightGrayColor];
+        _otherLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
+        _maleLabel.textColor = [UIColor lightGrayColor];
+        
 
+       
+        
+    }
+
+  
     
      NSLog(@"%f",self.genderSlider.value);
 }
@@ -465,7 +488,7 @@
     
     genderID = @"1";
   
-    
+    _otherLabel.textColor = [UIColor lightGrayColor];
     _femaleLabel.textColor = [UIColor lightGrayColor];
     _maleLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
     
@@ -474,11 +497,24 @@
 - (IBAction)femaleButton:(id)sender {
     genderID = @"2";
    
-     self.genderSlider.value = 100;
-    
+     self.genderSlider.value = 45;
+    _otherLabel.textColor = [UIColor lightGrayColor];
     _maleLabel.textColor = [UIColor lightGrayColor];
     _femaleLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
 }
+
+- (IBAction)otherButton:(id)sender {
+    
+    self.genderSlider.value = 100;
+genderID = @"1";
+    
+    
+    _otherLabel.textColor = [UIColor colorWithRed:(232/255.f) green:(22/255.f) blue:(42/255.f) alpha:1.0f];
+    _maleLabel.textColor = [UIColor lightGrayColor];
+    _femaleLabel.textColor = [UIColor lightGrayColor];
+    
+}
+
 
 - (IBAction)ageButtonOne:(id)sender {
     
@@ -523,6 +559,8 @@
     
 }
 
+
+
 - (UIImage *)compressForUpload:(UIImage *)original scale:(CGFloat)scale
 {
     // Calculate new size given scale factor.
@@ -547,22 +585,28 @@
     
     
     NSString *base64String;
+    NSInteger commonDeciceToken;
     
     
     if (chosenImage == nil || [chosenImage isEqual:nil]) {
         base64String = @""
-        ;    }
+;    }
     
     else{
         
         
         
         
-        base64String = [UIImagePNGRepresentation([self compressForUpload:chosenImage scale:1.0f])
+        base64String = [UIImageJPEGRepresentation([self compressForUpload:chosenImage scale:0.5f],0.5)
                         base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
         
+        base64String = [base64String stringByReplacingOccurrencesOfString:@"/"
+                                                               withString:@"_"];
         
-//        
+        base64String = [base64String stringByReplacingOccurrencesOfString:@"+"
+                                                               withString:@"-"];
+        
+//
 //        base64String = [base64String stringByReplacingOccurrencesOfString:@"/"
 //                                                                           withString:@"_"];
 //        
@@ -597,11 +641,23 @@
         if (interNetCheck==YES ) {
             
             
-            UIView *newView = [[UIView alloc]init];
-            newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
-            [self.view addSubview:newView];
+            if ([[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"] == nil) {
+                commonDeciceToken = 0;
+            }
             
-            [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+            else{
+                commonDeciceToken = [[[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"] integerValue];
+            }
+            
+            
+            [self showToast:@"Registering please wait !"];
+            
+            
+//            UIView *newView = [[UIView alloc]init];
+//            newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+//            [self.view addSubview:newView];
+//            
+//            [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
             
             
             
@@ -617,11 +673,14 @@
                                                     @"StatusId":moodID,
                                                     @"CountryCode":_countrytCode,
                                                     @"SerialNum":currentDeviceId,
-                                                    @"ComId":[[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"],
-                                                    @"OSVersion":[NSNumber numberWithInteger:2]
+                                                    @"ComId":[NSNumber numberWithInteger:commonDeciceToken],
+                                                    @"OSVersion":[NSNumber numberWithInteger:2],
+                                                    @"Extension":@"jpeg"
                                                     },
                                             
-                                            @"resourceInfo":base64String
+                                            @"resourceInfo":@{
+                                                    @"DataUrl":base64String
+                                                    }
                                                 
                                             };
             
@@ -668,6 +727,11 @@
             [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                 if (error) {
                     //do something with error
+                    
+                    NSLog(@"I am hereeee");
+                    
+//                    [GMDCircleLoader hideFromView:newView animated:YES];
+//                    [newView removeFromSuperview];
                 } else {
                     
                     NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -679,10 +743,10 @@
                         
                         if (dic==nil) {
                             
-                            
-                            [GMDCircleLoader hideFromView:newView animated:YES];
-                            [newView removeFromSuperview];
-                            
+//                            
+//                            [GMDCircleLoader hideFromView:newView animated:YES];
+//                            [newView removeFromSuperview];
+//                            
                             
                         }
                         else{
@@ -694,11 +758,11 @@
                             [[NSUserDefaults standardUserDefaults] setObject:[dic valueForKey:@"AddUserResult"] forKey:@"tokenVal"];
                             [[NSUserDefaults standardUserDefaults] synchronize];
                             
-                            
-                            
-                            [GMDCircleLoader hideFromView:newView animated:YES];
-                            [newView removeFromSuperview];
-                            
+//                            
+//                            
+//                            [GMDCircleLoader hideFromView:newView animated:YES];
+//                            [newView removeFromSuperview];
+//                            
                             [[NSUserDefaults standardUserDefaults]setObject:@"Existing" forKey:@"Existing"];
                             [[NSUserDefaults standardUserDefaults]synchronize];
                             
@@ -707,16 +771,11 @@
                             homeViewController *myVC = (homeViewController *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
                             
                             [self.navigationController pushViewController:myVC animated:YES];
-                            
-                            
-                            
-                            
+     
                             
                             
                         }
-                        
-                        
-                        
+ 
                         
                         
                     });

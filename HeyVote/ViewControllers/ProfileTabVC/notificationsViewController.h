@@ -8,9 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+#import <AssetsLibrary/AssetsLibrary.h>
+
+
+
+
 @interface notificationsViewController : UIViewController<UITableViewDelegate,UITableViewDataSource>
 - (IBAction)backButton:(id)sender;
 @property (weak, nonatomic) IBOutlet UITableView *myTableView;
+
+@property (strong, nonatomic) ALAssetsLibrary *library;
+
 
 
 

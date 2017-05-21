@@ -25,5 +25,7 @@
 @property (weak, nonatomic) IBOutlet UIView *mainScrollableView;
 - (IBAction)declineButton:(id)sender;
 - (IBAction)agreeButton:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *mobileNumberForOTP;
+@property (weak, nonatomic) IBOutlet UILabel *weSentOTPtext;
 
 @end

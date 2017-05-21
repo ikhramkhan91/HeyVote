@@ -45,6 +45,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *followingLabel;
 @property (strong, nonatomic) MPMoviePlayerController* mc;
 @property (strong, nonatomic) IBOutlet NSString *contactToke;
+@property (strong, nonatomic) IBOutlet NSString *fromComment;
 
 @property (weak, nonatomic) IBOutlet UIView *imageZoomView;
 @property (weak, nonatomic) IBOutlet UIImageView *zoomingImage;

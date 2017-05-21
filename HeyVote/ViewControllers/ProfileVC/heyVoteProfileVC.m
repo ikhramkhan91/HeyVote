@@ -1041,7 +1041,16 @@
 
 - (IBAction)closeButton:(id)sender {
     
-   [self.navigationController popViewControllerAnimated:NO];
+    if ([_fromComment isEqualToString:@"fromComment"]) {
+      [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    
+    else{
+         [self.navigationController popViewControllerAnimated:NO];
+        
+    }
+    
+  
 }
 
 

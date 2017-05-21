@@ -213,6 +213,11 @@
 @property (weak, nonatomic) IBOutlet UIImageView *fourVersusVersus;
 @property (weak, nonatomic) IBOutlet UIImageView *threeVersusVersus;
 
+@property (weak, nonatomic) IBOutlet UIImageView *finalImageThreeVersusAndFour;
+@property (weak, nonatomic) IBOutlet UIView *threeversusFinalViewWithGestures;
+@property (weak, nonatomic) IBOutlet UILabel *threeVersusFinalText;
+@property (weak, nonatomic) IBOutlet UIView *fourVersusFinalGestures;
+@property (weak, nonatomic) IBOutlet UILabel *fourVersusFinalText;
 
 @end
 

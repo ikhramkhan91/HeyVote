@@ -331,6 +331,8 @@ else{
         [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
             if (error) {
                 //do something with error
+                [GMDCircleLoader hideFromView:newView animated:YES];
+                [newView removeFromSuperview];
             } else {
                 
                 NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];

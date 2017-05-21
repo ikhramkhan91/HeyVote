@@ -13,6 +13,7 @@
 #import "UIImageView+WebCache.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "CollectionViewCell.h"
+#import <QuartzCore/QuartzCore.h>
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
@@ -34,9 +35,11 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 
 //@property (nonatomic) AVPlayerItem *playerItem;
 //
+@property (weak, nonatomic) IBOutlet UIButton *rollOverButton;
 
 //@property (strong,nonatomic) AVPlayerViewController *playerViewController;
 //@property (strong,nonatomic) AVPlayer *videoplayer;
+- (IBAction)rollOverButton:(id)sender;
 
 - (IBAction)videoThumbnailPlayButton:(id)sender;
 @property (weak, nonatomic) IBOutlet UIView *secondHeader;
@@ -56,6 +59,7 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 @property (weak, nonatomic) IBOutlet UIButton *heyVoteUpdates;
 - (IBAction)CheckInButton:(id)sender;
 
+@property (weak, nonatomic) IBOutlet UIView *topView;
 
 - (IBAction)newHeyVotes:(id)sender;
 
@@ -81,6 +85,8 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 @property (weak, nonatomic) IBOutlet UIView *previewYouHaveVoted;
 @property (weak, nonatomic) IBOutlet UILabel *previewYouVotedText;
 @property (weak, nonatomic) IBOutlet UIView *previewButtonView;
+@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
+@property (weak, nonatomic) IBOutlet UIView *infoView;
 
 @property (weak, nonatomic) IBOutlet UIButton *globalButton;
 @property (nonatomic, assign) CGPoint lastContentOffset;
@@ -100,6 +106,8 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 @property (weak, nonatomic) IBOutlet UIImageView *zoomImageView;
 
 //Global
+@property (weak, nonatomic) IBOutlet UIView *easyPostingView;
+@property (weak, nonatomic) IBOutlet UIImageView *tutorImage;
 
 - (IBAction)buttonOverImage:(id)sender;
 - (IBAction)doubleVoicePlayLeftButton:(id)sender;
@@ -121,5 +129,23 @@ UITableViewDelegate,UIScrollViewDelegate,UITextFieldDelegate,AVAudioPlayerDelega
 - (IBAction)secondCommentButton:(id)sender;
 @property (weak, nonatomic) IBOutlet UIButton *thirdCommentButton;
 - (IBAction)thirdCommentButton:(id)sender;
+- (IBAction)threeVersusRightButton:(id)sender;
+
+- (IBAction)threeVersusRightResultButton:(id)sender;
+
+- (IBAction)threeVersusFirstSecondLeftButton:(id)sender;
+- (IBAction)threeVersusFirstSecondRightButton:(id)sender;
+
+- (IBAction)threeVersusFinalLeftButton:(id)sender;
+
+- (IBAction)threeVersusFinalRightButton:(id)sender;
+- (IBAction)fourVersusFirstSecondLeftButton:(id)sender;
+- (IBAction)fourVersusFirstSecondRightButton:(id)sender;
+
+
+- (IBAction)fourVersusLeftButton:(id)sender;
+
+- (IBAction)fourVersusRightButton:(id)sender;
+
 
 @end

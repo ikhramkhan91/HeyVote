@@ -15,11 +15,25 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>2.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>1.0.2</string>
+	<key>Fabric</key>
+	<dict>
+		<key>APIKey</key>
+		<string>2af4f7eea5612c4b0e2a5c702dcf64f671a1067a</string>
+		<key>Kits</key>
+		<array>
+			<dict>
+				<key>KitInfo</key>
+				<dict/>
+				<key>KitName</key>
+				<string>Crashlytics</string>
+			</dict>
+		</array>
+	</dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -27,10 +41,20 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This application require camera service to select pictures for profile and posting</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This application require camera service to take pictures for profile and posting</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This application require contacts service to invite friends on HeyVote</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This application require location service to work</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This application require location service to work</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This application require microphone service to record audio for posting</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This application require camera service to select pictures for profile and posting</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -41,9 +65,13 @@
 	</array>
 	<key>UIRequiresFullScreen</key>
 	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
 </dict>
 </plist>

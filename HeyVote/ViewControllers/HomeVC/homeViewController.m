@@ -17,6 +17,8 @@
 
 #import "GetPostDetailsViewController.h"
 #import "NSDate+NVTimeAgo.h"
+#import "homeViewControllerRightSwipe.h"
+#import "easyPostingViewController.h"
 
 @interface homeViewController (){
    // MPMoviePlayerController *controller;
@@ -32,6 +34,8 @@
     
     NSString* commentViewVal;
     
+    
+    
     CGRect tabRect;
     CGRect newTabRect;
 
@@ -44,17 +48,27 @@
     NSInteger categoryID;
     NSInteger statusID;
     
+    
+     NSInteger resultButtonWidth;
+     NSInteger resultButtonHeight;
+    
+    
     NSMutableArray *arr;
   
-    
+    NSString* topViewVal;
     NSString* followUnfolloww;
     
     NSString* blockUnblockk;
     
     NSString * voteResultVal;
+    NSString * voteResultValThreeVersus;
+     NSString * voteResultValFourVersus;
     NSString * timerLoad;
     NSString * previewVal;
     NSMutableArray * voteResultAraay;
+    
+     NSMutableArray * voteResultAraayThreeVersus;
+     NSMutableArray * voteResultAraayFourVersus;
     NSMutableArray* nameArr;
 }
 
@@ -66,8 +80,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [_infoView setHidden:YES];
     
+    NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[[[[NSUserDefaults standardUserDefaults] objectForKey:@"basicInformation"] allObjects] valueForKey:@"ImageIdf"] objectAtIndex:0],[[[[[NSUserDefaults standardUserDefaults] objectForKey:@"basicInformation"] allObjects] valueForKey:@"FolderPath"] objectAtIndex:0]];
+
+    [_tutorImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
+ // [self newwwwMethod];
+     topViewVal = @"one";
  
+    [_topView setHidden:YES];
+
 //    nameArr = [NSMutableArray arrayWithObjects: @"Jill Valentine", @"Peter Griffin", @"Meg Griffin", @"Jack Lolwut",
 //                        @"Mike Roflcoptor",
 //                        nil];
@@ -110,6 +132,8 @@ timerLoad = @"";
 
     recentVal = @"";
     voteResultAraay = [[NSMutableArray alloc]init];
+     voteResultAraayThreeVersus = [[NSMutableArray alloc]init];
+    voteResultAraayFourVersus = [[NSMutableArray alloc]init];
     [_noPostView setHidden:YES];
     [_zoomView setHidden:YES];
     voteResultVal = @"";
@@ -147,16 +171,16 @@ timerLoad = @"";
     
     
     
-    
-    tabRect = CGRectMake(_myTableView.frame.origin.x, _myTableView.frame.origin.y, _myTableView.frame.size.width, _myTableView.frame.size.height);
-    
-    newTabRect = CGRectMake(_myTableView.frame.origin.x, _myTableView.frame.origin.y - _secondHeader.frame.size.height, _myTableView.frame.size.width, _myTableView.frame.size.height + _secondHeader.frame.size.height);
-    
-    
-     HeaderRect = CGRectMake(_headerView.frame.origin.x, _headerView.frame.origin.y, _headerView.frame.size.width, _headerView.frame.size.height);
-    
-     SecondHeaderRect = CGRectMake(_secondHeader.frame.origin.x, _secondHeader.frame.origin.y, _secondHeader.frame.size.width, _secondHeader.frame.size.height);
-    
+//    
+//    tabRect = CGRectMake(_myTableView.frame.origin.x, _myTableView.frame.origin.y, _myTableView.frame.size.width, _myTableView.frame.size.height);
+//    
+//    newTabRect = CGRectMake(_myTableView.frame.origin.x, _myTableView.frame.origin.y - _secondHeader.frame.size.height, _myTableView.frame.size.width, _myTableView.frame.size.height + _secondHeader.frame.size.height);
+//    
+//    
+//     HeaderRect = CGRectMake(_headerView.frame.origin.x, _headerView.frame.origin.y, _headerView.frame.size.width, _headerView.frame.size.height);
+//    
+//     SecondHeaderRect = CGRectMake(_secondHeader.frame.origin.x, _secondHeader.frame.origin.y, _secondHeader.frame.size.width, _secondHeader.frame.size.height);
+//    
     
     
     
@@ -180,8 +204,197 @@ timerLoad = @"";
     [_myTableView addSubview:_refreshControl];
     
 
+    // border radius
+    [_topView.layer setCornerRadius:2.0f];
+    
+    // border
+    [_topView.layer setBorderColor:[UIColor lightGrayColor].CGColor];
+    [_topView.layer setBorderWidth:0.1f];
+    
+    // drop shadow
+    [_topView.layer setShadowColor:[UIColor blackColor].CGColor];
+    [_topView.layer setShadowOpacity:0.2];
+    [_topView.layer setShadowRadius:3.0];
+    [_topView.layer setShadowOffset:CGSizeMake(0.5, 0.5)];
+    
+    
+    
+    resultButtonWidth = 119;
+    resultButtonHeight = 17;
+    
+    
+    
+    
+    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self
+                                                                                     action:@selector(leftSwipe:)];
+    [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
+    [self.myTableView addGestureRecognizer:recognizer];
+    
+    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self
+                                                           action:@selector(rightSwipe:)];
+    
+    [recognizer.delegate self];
+    
    
+    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
+    [self.myTableView addGestureRecognizer:recognizer];
+    
+    
+    UITapGestureRecognizer *singleFingerTap =
+    [[UITapGestureRecognizer alloc] initWithTarget:self
+                                            action:@selector(handleSingleTapEasy:)];
+    [_easyPostingView addGestureRecognizer:singleFingerTap];
+    
+    
+    if (self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable) {
+        [self registerForPreviewingWithDelegate:self sourceView:self.easyPostingView];
+    }
+    else {
+        NSLog(@"ForceTouch not available. use LongPress...");
+    }
+    
+    
+    
+    
 }
+
+
+
+- (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
+{
+    NSLog(@"peek");
+    
+    previewingContext.sourceRect = CGRectMake(0, 0, previewingContext.sourceView.frame.size.width, previewingContext.sourceView.frame.size.height);
+    
+    easyPostingViewController *vc = [self.storyboard instantiateViewControllerWithIdentifier:@"easyPostingViewController"];
+    vc.preferredContentSize = CGSizeMake(0, 520);
+    return vc;
+}
+
+- (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
+{
+    NSLog(@"pop");
+    
+    easyPostingViewController *vc = (easyPostingViewController *)viewControllerToCommit;
+   
+  //  vc.view.backgroundColor = [UIColor yellowColor];
+    
+    for (globalViewCell *cell in [self.myTableView visibleCells]) {
+        //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+        
+        
+        
+        [cell stopVideo];
+        [cell stopAudio];
+    }
+    
+    [self presentViewController:viewControllerToCommit animated:YES completion:nil];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *t = touches.anyObject;
+    
+    NSLog(@"touchesBegan : %f / %f", t.force, t.maximumPossibleForce);
+}
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *t = touches.anyObject;
+    
+    NSLog(@"touchesMoved : %f / %f", t.force, t.maximumPossibleForce);
+}
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *t = touches.anyObject;
+    
+    NSLog(@"touchesEnded : %f / %f", t.force, t.maximumPossibleForce);
+}
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *t = touches.anyObject;
+    
+    NSLog(@"touchesCancelled : %f / %f", t.force, t.maximumPossibleForce);
+}
+
+
+- (void)handleSingleTapEasy:(UITapGestureRecognizer *)recognizer
+{
+    
+    //Do stuff here...
+    
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    easyPostingViewController *myVC = (easyPostingViewController *)[storyboard instantiateViewControllerWithIdentifier:@"easyPostingViewController"];
+    
+    
+    
+    for (globalViewCell *cell in [self.myTableView visibleCells]) {
+        //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+        
+        
+        
+        [cell stopVideo];
+        [cell stopAudio];
+    }
+    
+    [self presentViewController:myVC animated:YES completion:nil];
+    
+
+    
+    
+    
+}
+
+
+
+- (void)leftSwipe:(UISwipeGestureRecognizer *)gestureRecognizer
+{
+    //do you left swipe stuff here.
+    
+    
+    NSLog(@"LEFT SWIPE");
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    homeViewControllerRightSwipe *myVC = (homeViewControllerRightSwipe *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewControllerRightSwipe"];
+//    
+//    
+    CATransition *transition = [CATransition animation];
+    transition.duration = 0.5;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+    transition.type = kCAAnimationCubic;
+    transition.subtype = kCAAlignmentLeft;
+    [self.navigationController.view.layer addAnimation:transition forKey:kCATransition];
+    [self.navigationController pushViewController:myVC animated:YES];
+    
+
+ //   [self PushAnimation];
+ //   [self.navigationController pushViewController:myVC animated:kCAAnimationCubic];
+    
+    
+}
+
+- (void)rightSwipe:(UISwipeGestureRecognizer *)gestureRecognizer
+{
+    //do you right swipe stuff here. Something usually using theindexPath that you get that way
+    CGPoint location = [gestureRecognizer locationInView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:location];
+    
+      NSLog(@"RIGHT SWIPE");
+}
+
+
+
+-(void)newwwwMethod{
+    
+    NSString * apiURLStr =[NSString stringWithFormat:@"http://heyvote.com/FBZK/FbService.svc/web/DoWork"];
+    NSMutableURLRequest *dataRqst = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:apiURLStr] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0];
+    NSHTTPURLResponse *response =[[NSHTTPURLResponse alloc] init];
+    NSError* error;
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:dataRqst returningResponse:&response error:&error];
+    NSString *responseString = [[NSString alloc] initWithBytes:[responseData bytes] length:[responseData length] encoding:NSUTF8StringEncoding];
+    NSLog(@"resppp%@",responseString);
+}
+
 
 -(void)callMainWebService{
 
@@ -198,13 +411,18 @@ timerLoad = @"";
 //        
         
         
+       
+        
+        
+      //  NSArray *requestArray = @[@"1441032475949225",@"10207903942369974"];
         NSDictionary *jsonDictionary =@{
                                         
-                                        @"isWeb":@"false"
-                                        
+ 
+  
+                               @"isWeb":@"false"
+                                       
                                         };
-        
-        
+
         
         
         
@@ -223,7 +441,9 @@ timerLoad = @"";
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/Getuserheaderresult"]];
+//        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/Getuserheaderresult"]];
+            
+              NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://heyvote.com/FBZK/FbService.svc/web/SendMessages"]];
         
         
         
@@ -257,7 +477,7 @@ timerLoad = @"";
                     
                     if (dic==nil) {
                         
-                        
+                         NSLog(@"hjfshjfhs%@",dic);
 //                        [GMDCircleLoader hideFromView:newView animated:YES];
 //                        [newView removeFromSuperview];
                         
@@ -275,7 +495,11 @@ timerLoad = @"";
                             
                         }
                         
-                        else{
+                   /*     else{
+                            
+                            
+                            
+                            
                         
                         NSString* v1 = [NSString stringWithFormat:@"%@",[[[dic valueForKey:@"GetUserHeaderResultResult"] allObjects] objectAtIndex:1]];
                           NSString* v2 = [NSString stringWithFormat:@"%@",[[[dic valueForKey:@"GetUserHeaderResultResult"] allObjects] objectAtIndex:0]];
@@ -293,7 +517,7 @@ timerLoad = @"";
                         _lostText.text = testTwo;
                             
                         }
-                        
+                        */
 //                        [GMDCircleLoader hideFromView:newView animated:YES];
 //                        [newView removeFromSuperview];
 //                        
@@ -389,6 +613,8 @@ timerLoad = @"";
   
     
     voteResultAraay = [[NSMutableArray alloc]init];
+    voteResultAraayThreeVersus = [[NSMutableArray alloc]init];
+      voteResultAraayFourVersus = [[NSMutableArray alloc]init];
     
     if (  [commentViewVal isEqualToString: @"val"]) {
         
@@ -396,31 +622,41 @@ timerLoad = @"";
     
     else{
         
-      //  [self.mc stop];
+      // [self.mc stop];
     [_myTableView setContentOffset:CGPointZero animated:YES];
+        
+        
+        if (![_topView isHidden]) {
+            [_topView setHidden:YES];
+            CATransition *transition = [CATransition animation];
+            transition.type = kCATransitionPush;
+            transition.subtype = kCATransitionFromLeft;
+            transition.duration = 0.4;
+            [_topView.layer addAnimation:transition forKey:nil];
+        }
+        
  
-    if ([_secondHeader alpha] == 0.0f || [_headerView alpha] == 0.0f) {
-        
-        
-        
-        //fade in
-        [UIView animateWithDuration:0.5f animations:^{
-            _secondHeader.alpha = 1.0f;
-            _headerView.alpha = 1.0f;
-            _headerView.frame = HeaderRect;
-            _myTableView.frame = tabRect;
-            
-     
-        } completion:^(BOOL finished) {
-            
-        }];
-        
-    }
+//    if ([_secondHeader alpha] == 0.0f || [_headerView alpha] == 0.0f) {
+//        
+//        
+//        
+//        //fade in
+//        [UIView animateWithDuration:0.5f animations:^{
+//            _secondHeader.alpha = 1.0f;
+//            _headerView.alpha = 1.0f;
+//            _headerView.frame = HeaderRect;
+//            _myTableView.frame = tabRect;
+//            
+//     
+//        } completion:^(BOOL finished) {
+//            
+//        }];
+//        
+//    }
         
     }
     
 }
-
 
 
 - (void)refresh:(UIRefreshControl *)refreshControl
@@ -433,6 +669,8 @@ timerLoad = @"";
     
     voteResultVal = @"";
      voteResultAraay = [[NSMutableArray alloc]init];
+    voteResultAraayThreeVersus = [[NSMutableArray alloc]init];
+      voteResultAraayFourVersus = [[NSMutableArray alloc]init];
     
 //    [self performSelector:@selector(stopRefresh) withObject:nil afterDelay:2.5];
 }
@@ -469,23 +707,34 @@ timerLoad = @"";
         
         [heyVoteUpdates setHidden:YES];
         
-        if ([_secondHeader alpha] == 0.0f) {
-            
-            
-            //fade in
-            [UIView animateWithDuration:0.1f animations:^{
-                _secondHeader.alpha = 1.0f;
-                _headerView.alpha = 1.0f;
-                _myTableView.frame = tabRect;
-                _headerView.frame = HeaderRect;
-                
-                
-                
-            } completion:^(BOOL finished) {
-   
-            }];
-            
+        
+        
+        if (![_topView isHidden]) {
+            [_topView setHidden:YES];
+            CATransition *transition = [CATransition animation];
+            transition.type = kCATransitionPush;
+            transition.subtype = kCATransitionFromLeft;
+            transition.duration = 0.4;
+            [_topView.layer addAnimation:transition forKey:nil];
         }
+        
+//        if ([_secondHeader alpha] == 0.0f) {
+//            
+//            
+//            //fade in
+//            [UIView animateWithDuration:0.1f animations:^{
+//                _secondHeader.alpha = 1.0f;
+//                _headerView.alpha = 1.0f;
+//                _myTableView.frame = tabRect;
+//                _headerView.frame = HeaderRect;
+//                
+//                
+//                
+//            } completion:^(BOOL finished) {
+//   
+//            }];
+//            
+//        }
 
     }
 
@@ -662,6 +911,14 @@ timerLoad = @"";
 {
   //  NSLog(@"scrollingggggg");
     
+    _infoView.alpha = 1;
+    // _funSeriousView.hidden = YES;
+    [UIView animateWithDuration:0.3 animations:^{
+        _infoView.alpha = 0;
+    }];
+    
+     [_infoView setHidden:YES];
+  
     
     if (globalArray.count >0) {
         
@@ -724,9 +981,7 @@ timerLoad = @"";
       // [cell stopVideo];
        [cell.videoplayer pause];
         }
-    
 
-    
     }
 //        
 //    else{
@@ -776,7 +1031,7 @@ timerLoad = @"";
                 NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:[[arr firstObject]section]],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:[[arr firstObject]section]]];
                 
                 
-                [_previewImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
+                [_previewImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"] options:SDWebImageRefreshCached];
  
                 [_previewButtonView setHidden:YES];
                 
@@ -832,7 +1087,7 @@ timerLoad = @"";
  NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:[[arr firstObject]section]],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:[[arr firstObject]section]]];
     
     
-     [_previewImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
+     [_previewImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"] options:SDWebImageRefreshCached];
     
     
     if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:[[arr firstObject]section]] integerValue] == 0) {
@@ -942,64 +1197,86 @@ timerLoad = @"";
     }else if (_lastContentOffset.y<(int)scrollView.contentOffset.y){
         NSLog(@"up");
         
-       if ([_secondHeader alpha] == 1.0f || [_headerView alpha] == 1.0f) {
- 
-        [UIView animateWithDuration:0.1f animations:^{
-            
-           _secondHeader.alpha = 0.0f;
-            _headerView.alpha = 0.0f;
-           
-            
-            _myTableView.frame = CGRectMake(_myScrollView.frame.origin.x, _myScrollView.frame.origin.y - 20 , _myScrollView.frame.size.width, _myScrollView.frame.size.height );
-
-            
-           //   _headerView.frame = CGRectMake(_myScrollView.frame.origin.x, _myScrollView.frame.origin.y - 20, _headerView.frame.size.width, _headerView.frame.size.height );
-
-            
-        } completion:^(BOOL finished) {
-            
-            
-           
-           
-            
-        }];
         
-       }
-     
+        if (![_topView isHidden]) {
+            
+            [_topView setHidden:YES];
+            CATransition *transition = [CATransition animation];
+            transition.type = kCATransitionPush;
+            transition.subtype = kCATransitionFromLeft;
+            transition.duration = 0.4;
+            [_topView.layer addAnimation:transition forKey:nil];
+        }
+        
+        
+//       if ([_secondHeader alpha] == 1.0f || [_headerView alpha] == 1.0f) {
+// 
+//        [UIView animateWithDuration:0.1f animations:^{
+//            
+//           _secondHeader.alpha = 0.0f;
+//            _headerView.alpha = 0.0f;
+//           
+//            
+//            _myTableView.frame = CGRectMake(_myScrollView.frame.origin.x, _myScrollView.frame.origin.y - 20 , _myScrollView.frame.size.width, _myScrollView.frame.size.height );
+//
+//            
+//           //   _headerView.frame = CGRectMake(_myScrollView.frame.origin.x, _myScrollView.frame.origin.y - 20, _headerView.frame.size.width, _headerView.frame.size.height );
+//
+//            
+//        } completion:^(BOOL finished) {
+//            
+//            
+//           
+//           
+//            
+//        }];
+//        
+//       }
+//     
         
         
     }else if (_lastContentOffset.y>(int)scrollView.contentOffset.y){
         NSLog(@"down");
         
-    
-  
-        if ([_headerView alpha] == 0.0f) {
+        if (![_topView isHidden]) {
             
-        
-        
-        //fade in
-        [UIView animateWithDuration:0.1f animations:^{
-            _headerView.alpha = 1.0f;
-            _myTableView.frame = newTabRect;
-             _headerView.frame = SecondHeaderRect;
-            
-         
-            
-            
-            
-            
-          
-            
-        } completion:^(BOOL finished) {
-            
-            
-           
-            
-                }];
-        
+            [_topView setHidden:YES];
+            CATransition *transition = [CATransition animation];
+            transition.type = kCATransitionPush;
+            transition.subtype = kCATransitionFromLeft;
+            transition.duration = 0.4;
+            [_topView.layer addAnimation:transition forKey:nil];
         }
         
-        
+    
+  
+//        if ([_headerView alpha] == 0.0f) {
+//            
+//        
+//        
+//        //fade in
+//        [UIView animateWithDuration:0.1f animations:^{
+//            _headerView.alpha = 1.0f;
+//            _myTableView.frame = newTabRect;
+//             _headerView.frame = SecondHeaderRect;
+//            
+//         
+//            
+//            
+//            
+//            
+//          
+//            
+//        } completion:^(BOOL finished) {
+//            
+//            
+//           
+//            
+//                }];
+//        
+//        }
+//        
+//        
         
     }
     
@@ -1098,6 +1375,27 @@ timerLoad = @"";
      static NSString *cellIdentifierThree = @"threeCommentCell";
       static NSString *cellIdentifierFour = @"newCell";
     
+    
+    static NSString *cellIdentifierHeyMood = @"myCellHeyMood";
+    static NSString *cellIdentifierOneHeyMood = @"oneCommentCellHeyMood";
+    static NSString *cellIdentifierTwoHeyMood = @"twoCommentCellHeyMood";
+    static NSString *cellIdentifierThreeHeyMood = @"threeCommentCellHeyMood";
+    
+    
+    
+    
+    
+    static NSString *cellIdentifierThreeVersus = @"threeVersusMyCell";
+    static NSString *cellIdentifierOneThreeVersus = @"threeVersusOneCommentCell";
+    static NSString *cellIdentifierTwoThreeVersus = @"threeVersusTwoCommentCell";
+    static NSString *cellIdentifierThreeThreeVersus = @"threeVersusThreeCommentCell";
+    
+    static NSString *cellIdentifierFourVersus = @"fourVersusMyCell";
+    static NSString *cellIdentifierOneFourVersus = @"fourVersusOneCommentCell";
+    static NSString *cellIdentifierTwoFourVersus = @"fourVersusTwoCommentCell";
+    static NSString *cellIdentifierThreeFourVersus = @"fourVersusThreeCommentCell";
+    
+    
     globalViewCell *cell;
     
 
@@ -1108,51 +1406,6 @@ timerLoad = @"";
     
      [cell.showMoreComments setHidden:YES];
     
-    
-//    
-//    
-//    if (screenWidthios  == 320) {
-//        
-////        
-////        [cell setLabelFrame:self.labelFloor.frame
-////                       unit:self.labelUnit.frame
-////                       type:self.labelType.frame
-////                       sqft:self.labelsqft.frame
-////                      price:self.labelPrice.frame
-////                     facing:self.labelFacing.frame
-////                       view:self.labelView.frame
-////                     status:self.labelStatus.frame
-////                labelHeight:labelHeight];
-////        
-////        [cell layoutIfNeeded];
-//        
-//        cell.yesNoMainView.frame = CGRectMake(cell.yesNoMainView.frame.origin.x, cell.yesNoMainView.frame.origin.y, 320, 40);
-//        cell.yesNoNotDoneButtonView.frame = CGRectMake(0, 0, 320, 38);
-//        
-//        
-//        cell.yesNoButtonView.frame = CGRectMake(0, 0, 320, 38);
-//        
-//        cell.commentViewIcon.frame = CGRectMake(2, 1, 310, 31);
-//        cell.sendButton.frame = CGRectMake(273, -4, 37, 37);
-//        
-//        cell.leftButton.frame = CGRectMake(8, 3, 150, 33);
-//        cell.rightButton.frame = CGRectMake(162, 3, 150, 33);
-//        
-//        cell.leftResultButton.frame = CGRectMake(8, 3, 150, 33);
-//        cell.rightResultButton.frame = CGRectMake(162, 3, 150, 33);
-//        
-//        cell.votesLabelRight.frame = CGRectMake(40, 18, 86, 12);
-//        cell.voteLabelLeft.frame = CGRectMake(196, 18, 83, 12);
-//        
-//      
-//    }
-//    
-//    else{
-//        
-//        cell.yesNoMainView.frame = CGRectMake(cell.yesNoMainView.frame.origin.x, cell.yesNoMainView.frame.origin.y, cell.yesNoMainView.frame.size.width, cell.yesNoMainView.frame.size.height);
-//        cell.commentViewIcon.frame = CGRectMake(cell.commentViewIcon.frame.origin.x, cell.commentViewIcon.frame.origin.y, cell.commentViewIcon.frame.size.width, cell.commentViewIcon.frame.size.height);
-//        
-//    }
 
     
     if (newVal == 1000) {
@@ -1169,35 +1422,11 @@ timerLoad = @"";
             int plusVal = newVal+1;
             newVal = plusVal;
             timerLoad = @"invalid";
-            
-      
-//            if([_travelFeedArray count]==0)
-//            {
-//                [self callWebservice:1];
-//                return;
-//            }
-//            else if (pageNum<total_page)
-//            {
-//                pageNum+=1;
-//                [self callWebservice:pageNum];
-//            }else
-//            {
-//                
-//                UIView *footerView1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 0)];
-//                footerView.backgroundColor = [UIColor clearColor];
-//                _travelFeedTableView.tableFooterView = footerView1;
-//            }
-
-            
-            
-            
+       
             
             [self callWebService:plusVal];
             
-            
-            
-           
-            
+ 
             
         }
     }
@@ -1207,29 +1436,55 @@ timerLoad = @"";
         
 
         
-//        
-//        CGRect visibleRect = (CGRect){.origin = self.myTableView.contentOffset, .size = self.myTableView.bounds.size};
-//        CGPoint visiblePoint = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
-//        NSIndexPath *visibleIndexPath = [self.myTableView indexPathForRowAtPoint:visiblePoint];
-//        
-//        
-//        NSLog(@"visibleeeeeee %@",[globalArray objectAtIndex:visibleIndexPath.section]);
-//        
-//        
-//        
-        
-        
-        
-        
-        
-        
-        
-        
-        
        nameArr =  [[NSMutableArray alloc] init];
         
         
         if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
+            
+            if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 3) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierThreeVersus];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThreeVersus];
+                }
+
+                
+            }
+            
+            
+          else  if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 4) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierFourVersus];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierFourVersus];
+                }
+                
+                
+            }
+            
+            
+          else  if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 2) {
+              
+              
+              cell = [tableView dequeueReusableCellWithIdentifier:
+                      cellIdentifierHeyMood];
+              if (cell == nil) {
+                  cell = [[globalViewCell alloc]initWithStyle:
+                          UITableViewCellStyleDefault reuseIdentifier:cellIdentifierHeyMood];
+              }
+              
+              
+          }
+            
+            
+            else{
+            
             
             cell = [tableView dequeueReusableCellWithIdentifier:
                     cellIdentifier];
@@ -1238,58 +1493,71 @@ timerLoad = @"";
                         UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
             }
             
-            
-          
-//            
-//            if (screenWidthios  == 320) {
-//                
-//                cell.yesNoMainView.frame = CGRectMake(cell.yesNoMainView.frame.origin.x, cell.yesNoMainView.frame.origin.y, 320, 40);
-//                  cell.yesNoNotDoneButtonView.frame = CGRectMake(0, 0, 320, 38);
-//                
-//                
-//                cell.yesNoButtonView.frame = CGRectMake(0, 0, 320, 38);
-//                
-//                cell.commentViewIcon.frame = CGRectMake(2, 1, 310, 31);
-//                  cell.sendButton.frame = CGRectMake(273, -4, 37, 37);
-//                
-//                cell.leftButton.frame = CGRectMake(8, 3, 150, 33);
-//                cell.rightButton.frame = CGRectMake(162, 3, 150, 33);
-//                
-//                cell.leftResultButton.frame = CGRectMake(8, 3, 150, 33);
-//                cell.rightResultButton.frame = CGRectMake(162, 3, 150, 33);
-//                
-//                cell.votesLabelRight.frame = CGRectMake(40, 18, 86, 12);
-//                cell.voteLabelLeft.frame = CGRectMake(196, 18, 83, 12);
-//                
-//                
-//            }
-//            
-//            else{
-//                
-//                cell.yesNoMainView.frame = CGRectMake(cell.yesNoMainView.frame.origin.x, cell.yesNoMainView.frame.origin.y, cell.yesNoMainView.frame.size.width, cell.yesNoMainView.frame.size.height);
-//                cell.commentViewIcon.frame = CGRectMake(cell.commentViewIcon.frame.origin.x, cell.commentViewIcon.frame.origin.y, cell.commentViewIcon.frame.size.width, cell.commentViewIcon.frame.size.height);
-//                
-//            }
-//           
-            
+            }
         }
         
         else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1){
             
-            cell = [tableView dequeueReusableCellWithIdentifier:
-                    cellIdentifierOne];
-            if (cell == nil) {
-                cell = [[globalViewCell alloc]initWithStyle:
-                        UITableViewCellStyleDefault reuseIdentifier:cellIdentifierOne];
+            
+             if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 3) {
+                 
+                 
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierOneThreeVersus];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierOneThreeVersus];
+                 }
+                 
+                 
+             }
+            
+            
+         else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 4) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierOneFourVersus];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierOneFourVersus];
+                }
+                
+                
             }
             
+         else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 2) {
+             
+             
+             cell = [tableView dequeueReusableCellWithIdentifier:
+                     cellIdentifierOneHeyMood];
+             if (cell == nil) {
+                 cell = [[globalViewCell alloc]initWithStyle:
+                         UITableViewCellStyleDefault reuseIdentifier:cellIdentifierOneHeyMood];
+             }
+             
+             
+         }
+            
+             else{
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierOne];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierOne];
+                 }
+                 
+             }
+            
+            
+      
             
              NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"ImageIdf"] objectAtIndex:0],[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"FolderPath"] objectAtIndex:0]];
             
         
             
            
-         [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+         [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             
             cell.firsttImageButton.layer.cornerRadius = cell.firsttImageButton.frame.size.height /2;
             cell.firsttImageButton.layer.masksToBounds = YES;
@@ -1300,19 +1568,65 @@ timerLoad = @"";
         
         else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2){
             
-            cell = [tableView dequeueReusableCellWithIdentifier:
-                    cellIdentifierTwo];
-            if (cell == nil) {
-                cell = [[globalViewCell alloc]initWithStyle:
-                        UITableViewCellStyleDefault reuseIdentifier:cellIdentifierTwo];
+            
+            
+            if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 3) {
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierTwoThreeVersus];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierTwoThreeVersus];
+                }
             }
+            
+            else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 4) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierTwoFourVersus];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierTwoFourVersus];
+                }
+                
+                
+            }
+            
+            else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 2) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierTwoHeyMood];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierTwoHeyMood];
+                }
+                
+                
+            }
+            
+            
+            
+            else{
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierTwo];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierTwo];
+                }
+                
+            }
+            
+         
             
             
             NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"ImageIdf"] objectAtIndex:0],[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"FolderPath"] objectAtIndex:0]];
             
             
             
-           [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+           [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             
             cell.firsttImageButton.layer.cornerRadius = cell.firsttImageButton.frame.size.height /2;
             cell.firsttImageButton.layer.masksToBounds = YES;
@@ -1324,7 +1638,7 @@ timerLoad = @"";
             
             
             
-           [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringtwo] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+           [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringtwo] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             cell.secondButtonImage.layer.cornerRadius = cell.secondButtonImage.frame.size.height /2;
             cell.secondButtonImage.layer.masksToBounds = YES;
             cell.secondButtonImage.layer.borderWidth = 0;
@@ -1332,19 +1646,65 @@ timerLoad = @"";
         
         else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3 || [[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3 ){
             
-            cell = [tableView dequeueReusableCellWithIdentifier:
-                    cellIdentifierThree];
-            if (cell == nil) {
-                cell = [[globalViewCell alloc]initWithStyle:
-                        UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThree];
-            }
+             if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 3) {
+                 
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierThreeThreeVersus];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThreeThreeVersus];
+                 }
+             }
+            
+            
+            
+             else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 4) {
+                 
+                 
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierThreeFourVersus];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThreeFourVersus];
+                 }
+                 
+                 
+             }
+            
+            
+             else if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1 &&    [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 2) {
+                 
+                 
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierThreeHeyMood];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThreeHeyMood];
+                 }
+                 
+                 
+             }
+            
+            
+            
+             else{
+                 cell = [tableView dequeueReusableCellWithIdentifier:
+                         cellIdentifierThree];
+                 if (cell == nil) {
+                     cell = [[globalViewCell alloc]initWithStyle:
+                             UITableViewCellStyleDefault reuseIdentifier:cellIdentifierThree];
+                 }
+             }
+            
+            
+        
             
             NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"ImageIdf"] objectAtIndex:0],[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"FolderPath"] objectAtIndex:0]];
             
             
             
             
-          [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+          [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             
             cell.firsttImageButton.layer.cornerRadius = cell.firsttImageButton.frame.size.height /2;
             cell.firsttImageButton.layer.masksToBounds = YES;
@@ -1355,7 +1715,7 @@ timerLoad = @"";
             
             
             
-           [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringtwo] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+           [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringtwo] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             
             cell.secondButtonImage.layer.cornerRadius = cell.secondButtonImage.frame.size.height /2;
             cell.secondButtonImage.layer.masksToBounds = YES;
@@ -1366,7 +1726,7 @@ timerLoad = @"";
             
             
             
-             [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringthree] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+             [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageStringthree] placeholderImage:[UIImage imageNamed:@"userContacts.png"] options:SDWebImageRefreshCached];
             cell.thirsButtonImage.layer.cornerRadius = cell.thirsButtonImage.frame.size.height /2;
             cell.thirsButtonImage.layer.masksToBounds = YES;
             cell.thirsButtonImage.layer.borderWidth = 0;
@@ -1403,20 +1763,16 @@ timerLoad = @"";
         [cell.timerCell setHidden:YES];
         [cell.remainingLabel setHidden:YES];
         
-        
-        
-        
-        
-       
+  
         
        // timerLoad = @"";
-        cell.leftResultButton.layer.cornerRadius = 3;
-        [[cell.leftResultButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
-        cell.leftResultButton.layer.borderWidth = 0.5;
-        
-        cell.rightResultButton.layer.cornerRadius = 3;
-         [[cell.rightResultButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
-        cell.rightResultButton.layer.borderWidth = 0.5;
+//        cell.leftResultButton.layer.cornerRadius = 3;
+//        [[cell.leftResultButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.leftResultButton.layer.borderWidth = 0.5;
+//        
+//        cell.rightResultButton.layer.cornerRadius = 3;
+//         [[cell.rightResultButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.rightResultButton.layer.borderWidth = 0.5;
         
         
         cell.leftButton.layer.cornerRadius = 3;
@@ -1426,6 +1782,79 @@ timerLoad = @"";
         cell.rightButton.layer.cornerRadius = 3;
         [[cell.rightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
         cell.rightButton.layer.borderWidth = 0.5;
+        
+        
+        
+        
+      /*  cell.threeVersusFinalLeftButton.layer.cornerRadius = 3;
+        [[cell.threeVersusFinalLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusFinalLeftButton.layer.borderWidth = 0.5;
+        
+        cell.threeVersusFinalRightButton.layer.cornerRadius = 3;
+        [[cell.threeVersusFinalRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusFinalRightButton.layer.borderWidth = 0.5;
+        
+        cell.threeVersusRightResultButton.layer.cornerRadius = 3;
+        [[cell.threeVersusRightResultButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusRightResultButton.layer.borderWidth = 0.5; */
+        
+        
+        cell.threeVersusFirstSecondLeftButton.layer.cornerRadius = 3;
+        [[cell.threeVersusFirstSecondLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusFirstSecondLeftButton.layer.borderWidth = 0.5;
+        
+        cell.threeVersusFirstSecondRightButton.layer.cornerRadius = 3;
+        [[cell.threeVersusFirstSecondRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusFirstSecondRightButton.layer.borderWidth = 0.5;
+        
+        cell.threeVersusRightButton.layer.cornerRadius = 3;
+        [[cell.threeVersusRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.threeVersusRightButton.layer.borderWidth = 0.5;
+        
+        
+      
+ 
+        
+        
+        
+//        cell.fourVersusFinalLeftButton.layer.cornerRadius = 3;
+//        [[cell.fourVersusFinalLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.fourVersusFinalLeftButton.layer.borderWidth = 0.5;
+//        
+//        cell.fourVersusFinalRightButton.layer.cornerRadius = 3;
+//        [[cell.fourVersusFinalRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.fourVersusFinalRightButton.layer.borderWidth = 0.5;
+        
+        cell.fourVersusLeftButton.layer.cornerRadius = 3;
+        [[cell.fourVersusLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.fourVersusLeftButton.layer.borderWidth = 0.5;
+        
+        
+        cell.fourVersusRightButton.layer.cornerRadius = 3;
+        [[cell.fourVersusRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.fourVersusRightButton.layer.borderWidth = 0.5;
+        
+        cell.fourVersusFirstSecondLeftButton.layer.cornerRadius = 3;
+        [[cell.fourVersusFirstSecondLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.fourVersusFirstSecondLeftButton.layer.borderWidth = 0.5;
+        
+        cell.fourVersusFirstSecondRightButton.layer.cornerRadius = 3;
+        [[cell.fourVersusFirstSecondRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+        cell.fourVersusFirstSecondRightButton.layer.borderWidth = 0.5;
+        
+        
+//        cell.fourVersusFirstSecondFinalLeftButton.layer.cornerRadius = 3;
+//        [[cell.fourVersusFirstSecondFinalLeftButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.fourVersusFirstSecondFinalLeftButton.layer.borderWidth = 0.5;
+//        
+//        cell.fourVersusFirstSecondFinalRightButton.layer.cornerRadius = 3;
+//        [[cell.fourVersusFirstSecondFinalRightButton layer] setBorderColor:[UIColor lightGrayColor].CGColor];
+//        cell.fourVersusFirstSecondFinalRightButton.layer.borderWidth = 0.5;
+        
+        
+        
+        
+        
         
         
        
@@ -1445,7 +1874,36 @@ timerLoad = @"";
         
         [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
         
+        
+        [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor] ];
+        
+        
+        [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+        
+        [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor] ];
+        
+        
+        
+        
+        [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor] ];
+        
+        
+        [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+        
+        [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor] ];
+         [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor] ];
+      
+        
+        
+        
+        
+        
         // [cell.titleLabel setNumberOfLines:0];
+        
+        
+        
+        
+        
         
         cell.titleLabel.text = [[globalArray valueForKey:@"Title"] objectAtIndex:indexPath.section];
         //  NSString *textViewText =cell.titleLabel.text;
@@ -1508,379 +1966,325 @@ timerLoad = @"";
         if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
             
             
-            //[self.mc pause];
-//             videoplayer.muted = YES;
-//            [videoplayer pause];
+            
+            if ([[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 0 || [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 1 || [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 2) {
+                
+                
+                
+                
+                
+                
+                //[self.mc pause];
+                //             videoplayer.muted = YES;
+                //            [videoplayer pause];
+                
+                
+                NSString * locationName = [[globalArray valueForKey:@"LocationName"] objectAtIndex:indexPath.section];
+                if ([locationName length] > 0) {
+                    [cell.checkInView setHidden:NO];
+                    [cell.checkinButton setTitle:locationName forState: UIControlStateNormal];
+                }
+                
+                
+                
+                
+                [cell.proImageView setHidden:NO];
+                [cell.buttonOverImage setHidden:NO];
+                [cell.voiceView setHidden:YES];
+                
+                
+                
+                //Post Image
+                
+                NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:indexPath.section]];
+                
+                
+                
+                
+                
+                //            cell.proImageView.layer.shadowColor = [UIColor blackColor].CGColor;
+                //            cell.proImageView.layer.shadowOpacity = 0.3f;
+                //            cell.proImageView.layer.shadowOffset = CGSizeMake(10.0f, 10.0f);
+                //            cell.proImageView.layer.shadowRadius = 4.0f;
+                //            cell.proImageView.layer.masksToBounds = NO;
+                //
+                //            UIBezierPath *path = [UIBezierPath bezierPathWithRect:cell.proImageView.bounds];
+                //            cell.proImageView.layer.shadowPath = path.CGPath;
+                
+                [cell.proImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"] options:SDWebImageRefreshCached];
+                //Post Vote percentage
+                
+                
+                
+                
+                NSString*percent = @"%";
+                
+                NSString*vote1 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount1"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                CGRect buttonFrameNew = CGRectMake(3, cell.voteLabelLeft.frame.origin.y, resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+                buttonFrameNew.size = CGSizeMake(resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+                cell.leftResultButton.frame = buttonFrameNew;
+                
+                
+                CGRect buttonFrameNew2 = CGRectMake(3, cell.votesLabelRight.frame.origin.y, resultButtonWidth, cell.votesLabelRight.frame.size.height);
+                buttonFrameNew2.size = CGSizeMake(resultButtonWidth, cell.votesLabelRight.frame.size.height);
+                cell.rightResultButton.frame = buttonFrameNew2;
+                
+                
+                if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]) {
+                    
+                    
+                    
+                    if (screenWidthios == 320) {
 
-            
-            NSString * locationName = [[globalArray valueForKey:@"LocationName"] objectAtIndex:indexPath.section];
-            if ([locationName length] > 0) {
-                [cell.checkInView setHidden:NO];
-                [cell.checkinButton setTitle:locationName forState: UIControlStateNormal];
-            }
-            
+                        
+                            CGRect buttonFrame = cell.leftResultButton.frame;
+                            buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                            cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
+                        
           
-            
-            
-            [cell.proImageView setHidden:NO];
-            [cell.buttonOverImage setHidden:NO];
-            [cell.voiceView setHidden:YES];
-            
-            
-            
-            //Post Image
-            
-            NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:indexPath.section]];
-            
-            
-            
-            
-            
-            //            cell.proImageView.layer.shadowColor = [UIColor blackColor].CGColor;
-            //            cell.proImageView.layer.shadowOpacity = 0.3f;
-            //            cell.proImageView.layer.shadowOffset = CGSizeMake(10.0f, 10.0f);
-            //            cell.proImageView.layer.shadowRadius = 4.0f;
-            //            cell.proImageView.layer.masksToBounds = NO;
-            //
-            //            UIBezierPath *path = [UIBezierPath bezierPathWithRect:cell.proImageView.bounds];
-            //            cell.proImageView.layer.shadowPath = path.CGPath;
-            
-            [cell.proImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
-            //Post Vote percentage
-            
-            
-        
-            
-            NSString*percent = @"%";
-            
-            NSString*vote1 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount1"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section],percent];
-            
-            
-            NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
-            
-            
-            if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]) {
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
-                
-                
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                [cell.leftWinnerImage setHidden:NO];
-                [cell.rightWinnerImage setHidden:YES];
-                
-            }
-            
-            else if([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] == [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
-                
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:YES];
-                
-                
-                
-//                
-//                [cell.leftTickImage setHidden:YES];
-//                [cell.rightTickImage setHidden:YES];
-            }
-            
-            else{
-                
-                
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
-                
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:NO];
-                
-//                
-//                [cell.leftTickImage setHidden:YES];
-//                [cell.rightTickImage setHidden:NO];
-            }
-            
-            cell.voteLabelLeft.text = vote1;
-            cell.votesLabelRight.text = vote2;
-            
-            
-            //Total HeyVote Counts
-            
-            
-            NSString* totalVotes = [NSString stringWithFormat:@"%@ HeyVotes",[[globalArray valueForKey:@"VoteCount"] objectAtIndex:indexPath.section]];
-            
-            cell.totalVotesLabel.text = totalVotes;
-            
-            
-            //Comments Count
-            
-            if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count]  >1) {
-                
-                NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
-                
-                NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
-                [attString addAttribute:NSUnderlineStyleAttributeName
-                                  value:[NSNumber numberWithInt:1]
-                                  range:(NSRange){0,[attString length]}];
-                cell.totalComments.text =totalComments;
-            }
-            
-            else{
-            
-                NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
-                
-                
-                NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
-                [attString addAttribute:NSUnderlineStyleAttributeName
-                                  value:[NSNumber numberWithInt:1]
-                                  range:(NSRange){0,[attString length]}];
-                cell.totalComments.text =totalComments;
-                
-            }
-            
-            
-            //Post Title
-            
-              [cell.titleLabelView setHidden:YES];
-            
-            
-            
-            //Comment Attribute Label
-            
-            if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
-                
-                
-                
-                
-                NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
-                
-                
-               
-           
-                
-                
-                NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
-                
-              
-                NSString *yString = [splitString objectAtIndex:1];
-                
-                
-                
-                if ([yString containsString:@"-"]) {
+                        
+                    }
                     
-                    NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
-                    
-                    
-                    NSString* testOne = [arrrr objectAtIndex:0];
-                    
-                    
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
-                    
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
-                    
-                    
-                    
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-                    
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-                    
-                       NSString* localTime = [tr formattedAsTimeAgo];
-                 //   NSString* localTime = [dateFormatter stringFromDate:tr];
-                    
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                    else if (screenWidthios == 375){
+                        
+                        
+                        
+                        CGRect buttonFrame = cell.leftResultButton.frame;
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                        cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
 
-                
-//                [cell.commentAttributedLabel setHidden:NO];
-//                [cell.showMoreComments setHidden:YES];
-                
-//                
-         //      NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                    }
                     
-                    cell.commentAttributedLabelFirst.text= [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                    
-               
-                  NSString * commetAttrTextTwo = localTime;
-                
-                NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
-                
-                NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
-                
-                
-                
-                CGFloat boldTextFontSize = 12.0f;
-                    
-                    CGFloat boldTextFontSizeee = 10.0f;
-                
-                //  cell.commentAttributedLabel.text = combinedText;
-                
-                NSRange range1 = [combinedText rangeOfString:commentAttrText];
-                NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
-                
-                NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
-                
-                
-                    NSDictionary *attrDict = @{
-                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
-                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                               };
-                
-                
-              //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                    [attributedText setAttributes:attrDict  range:range2];
-                
-                
-                [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
-                                        range:range1];
-                
-                
-                cell.commentAttributedLabel.attributedText = attributedText;
-                
-                
-                
-                
-                 }
-                
-                
-            }
-            
-            
-            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
-                
-                
-                
-                
-                NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
-                
-                
-                
-                
-                
-                
-                NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
-                
-                
-                NSString *yString = [splitString objectAtIndex:1];
-                
-                NSString* localTime;
-                
-                if ([yString containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = cell.leftResultButton.frame;
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                        cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
+                        
+                        
+                    }
                     
                     
-                    NSString* testOne = [arrrr objectAtIndex:0];
+                    cell.leftResultButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
                     
                     
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
+                
                     
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                    cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
                     
                     
                     
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
                     
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+//                    [cell.leftWinnerImage setHidden:NO];
+//                    [cell.rightWinnerImage setHidden:YES];
                     
-                     localTime = [tr formattedAsTimeAgo];
-                    //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                }
+                
+                else if([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] == [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
                     
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                    cell.leftResultButton.backgroundColor = [UIColor colorWithRed:162/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//
+//                    [cell.leftWinnerImage setHidden:YES];
+//                    [cell.rightWinnerImage setHidden:YES];
+//                    
+                    
+                 
+                }
+                
+                else{
+                    
+                    
+                    cell.leftResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f] ;
+                    
+                    cell.rightResultButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                    
+                    
+                    if (screenWidthios == 320) {
+                        
+                        
+                        CGRect buttonFrame = cell.leftResultButton.frame;
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                        cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
+                        
+                        
+                        
+                    }
+                    
+                    else if (screenWidthios == 375){
+                        
+                        
+                        
+                        CGRect buttonFrame = cell.leftResultButton.frame;
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                        cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
+                        
+                        
+                    }
+                    
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = cell.leftResultButton.frame;
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                        cell.leftResultButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = cell.rightResultButton.frame;
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                        cell.rightResultButton.frame = buttonFrame2;
+                        
+                        
+                    }
+                    
+                    
+                    
+                    
+//                    
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+                    
+//                    [cell.leftWinnerImage setHidden:YES];
+//                    [cell.rightWinnerImage setHidden:NO];
+                    
+                 
+                }
+                
+                cell.voteLabelLeft.text = vote1;
+                cell.votesLabelRight.text = vote2;
+                
+                
+                //Total HeyVote Counts
+                
+                
+                NSString* totalVotes = [NSString stringWithFormat:@"%@ HeyVotes",[[globalArray valueForKey:@"VoteCount"] objectAtIndex:indexPath.section]];
+                
+                cell.totalVotesLabel.text = totalVotes;
+                
+                
+                //Comments Count
+                
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count]  >1) {
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
+                    
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
+                }
+                
+                else{
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
+                    
+                    
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
                     
                 }
                 
                 
-                    NSString * commetAttrTextTwo = localTime;
+                //Post Title
                 
-              //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
-                    
-                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
-                    
-                    
-                    
-                    CGFloat boldTextFontSize = 12.0f;
-                    
-                    CGFloat boldTextFontSizeee = 10.0f;
-                    
-                    //  cell.commentAttributedLabel.text = combinedText;
-                    
-                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
-                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
-                    
-                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
-                    
-                    
-                    NSDictionary *attrDict = @{
-                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
-                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                               };
-                    
-                    
-                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                    [attributedText setAttributes:attrDict  range:range2];
-                
-                [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
-                                        range:range1];
+                [cell.titleLabelView setHidden:YES];
                 
                 
-                cell.commentAttributedLabel.attributedText = attributedText;
                 
+                //Comment Attribute Label
                 
-                    
-                    
-                    
-                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
-                    
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
                     
                     
                     
                     
-                    
-                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
                     
                     
-                    NSString *yStringg = [splitStringg objectAtIndex:1];
                     
-                    NSString* localTimee;
                     
-                    if ([yStringg containsString:@"-"]) {
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    
+                    
+                    if ([yString containsString:@"-"]) {
                         
-                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
                         
                         
                         NSString* testOne = [arrrr objectAtIndex:0];
@@ -1904,63 +2308,67 @@ timerLoad = @"";
                         [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
                         [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
                         
-                        localTimee = [tr formattedAsTimeAgoTwo];
+                        NSString* localTime = [tr formattedAsTimeAgo];
                         //   NSString* localTime = [dateFormatter stringFromDate:tr];
                         
-                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
-                        
-                    }
-                    
-                        
-                        NSString * commetAttrTextTwoo = localTimee;
-                        
-                        //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                 cell.commentAttributedCellSecond.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
-                        
-                        NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
-                        
-                        NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
                         
                         
+                        //                [cell.commentAttributedLabel setHidden:NO];
+                        //                [cell.showMoreComments setHidden:YES];
                         
-                        CGFloat boldTextFontSizee = 12.0f;
+                        //
+                        //      NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
                         
-                        CGFloat boldTextFontSizeeee = 10.0f;
+                        cell.commentAttributedLabelFirst.text= [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                        
+                        NSString * commetAttrTextTwo = localTime;
+                        
+                        NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                        
+                        NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                        
+                        
+                        
+                        CGFloat boldTextFontSize = 12.0f;
+                        
+                        CGFloat boldTextFontSizeee = 10.0f;
                         
                         //  cell.commentAttributedLabel.text = combinedText;
                         
-                        NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
-                        NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                        NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                        NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
                         
-                        NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                        NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
                         
                         
-                        NSDictionary *attrDictt = @{
-                                                   NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                        NSDictionary *attrDict = @{
+                                                   NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
                                                    NSForegroundColorAttributeName : [UIColor darkGrayColor]
                                                    };
                         
                         
                         //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                        [attributedTextt setAttributes:attrDictt  range:range22];
-                        
-                        [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
-                                                range:range11];
+                        [attributedText setAttributes:attrDict  range:range2];
                         
                         
-                        cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                        [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                                range:range1];
+                        
+                        
+                        cell.commentAttributedLabel.attributedText = attributedText;
+                        
+                        
+                        
+                        
+                    }
+                    
+                    
+                }
                 
                 
-                
-                
-            }
-            
-            
-            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3) {
-               
-             
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
                     
                     
                     
@@ -2017,9 +2425,9 @@ timerLoad = @"";
                     NSString * commetAttrTextTwo = localTime;
                     
                     //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedLabelFirst.text =  cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
                     
                     NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
                     
@@ -2110,10 +2518,10 @@ timerLoad = @"";
                     NSString * commetAttrTextTwoo = localTimee;
                     
                     //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
-                
+                    
+                    
+                    cell.commentAttributedCellSecond.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
                     NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
                     
                     NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
@@ -2150,744 +2558,4769 @@ timerLoad = @"";
                     
                     
                     
+                }
                 
                 
-                
-                
-                NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
-                
-                
-                
-                
-                
-                
-                NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
-                
-                
-                NSString *yStringgg = [splitStringgg objectAtIndex:1];
-                
-                NSString* localTimeee;
-                
-                if ([yStringgg containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
-                    
-                    
-                    NSString* testOne = [arrrr objectAtIndex:0];
-                    
-                    
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
-                    
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3) {
                     
                     
                     
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
                     
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
                     
-                    localTimeee = [tr formattedAsTimeAgoThree];
-                    //   NSString* localTime = [dateFormatter stringFromDate:tr];
                     
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text =  cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
                     
                 }
                 
                 
-                NSString * commetAttrTextTwooo = localTimeee;
                 
-                //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
-                
-                
-                NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
-                
-                NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
-                
-                
-                
-                CGFloat boldTextFontSizeeeee = 12.0f;
-                
-                CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
-                
-                //  cell.commentAttributedLabel.text = combinedText;
-                
-                NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
-                NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
-                
-                NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
-                
-                
-                NSDictionary *attrDicttt = @{
-                                            NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
-                                            NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                            };
-                
-                
-                //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                [attributedTexttt setAttributes:attrDicttt  range:range222];
-                
-                [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
-                                         range:range111];
-                
-                
-                cell.commentAttributedLabelThree.attributedText = attributedTexttt;
-                
-                
-                
-                
-            }
-
-            
-            
-            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
-               
-            
-                    
-                
-                
-                
-                NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
-                
-                
-                
-                
-                
-                
-                NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
-                
-                
-                NSString *yString = [splitString objectAtIndex:1];
-                
-                NSString* localTime;
-                
-                if ([yString containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
-                    
-                    
-                    NSString* testOne = [arrrr objectAtIndex:0];
-                    
-                    
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
-                    
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
                     
                     
                     
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
                     
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
                     
-                    localTime = [tr formattedAsTimeAgo];
-                    //   NSString* localTime = [dateFormatter stringFromDate:tr];
                     
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
+                    
+                    
+                    [cell.showMoreComments setHidden:NO];
+                    [cell.totalComments setHidden:YES];
                     
                 }
                 
+                // Post is Live Or Done
                 
-                NSString * commetAttrTextTwo = localTime;
-                
-                //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-            cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
-                
-                NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
-                
-                
-                
-                CGFloat boldTextFontSize = 12.0f;
-                
-                CGFloat boldTextFontSizeee = 10.0f;
-                
-                //  cell.commentAttributedLabel.text = combinedText;
-                
-                NSRange range1 = [combinedText rangeOfString:commentAttrText];
-                NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
-                
-                NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
-                
-                
-                NSDictionary *attrDict = @{
-                                           NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
-                                           NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                           };
-                
-                
-                //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                [attributedText setAttributes:attrDict  range:range2];
-                
-                [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
-                                        range:range1];
-                
-                
-                cell.commentAttributedLabel.attributedText = attributedText;
-                
-                
-                
-                
-                
-                NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
-                
-                
-                
-                
-                
-                
-                NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
-                
-                
-                NSString *yStringg = [splitStringg objectAtIndex:1];
-                
-                NSString* localTimee;
-                
-                if ([yStringg containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
-                    
-                    
-                    NSString* testOne = [arrrr objectAtIndex:0];
-                    
-                    
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
-                    
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0 ) {
                     
                     
                     
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-                    
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-                    
-                    localTimee = [tr formattedAsTimeAgoTwo];
-                    //   NSString* localTime = [dateFormatter stringFromDate:tr];
-                    
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
-                    
-                }
-                
-                
-                NSString * commetAttrTextTwoo = localTimee;
-                
-                //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
-                
-                NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
-                
-                NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
-                
-                
-                
-                CGFloat boldTextFontSizee = 12.0f;
-                
-                CGFloat boldTextFontSizeeee = 10.0f;
-                
-                //  cell.commentAttributedLabel.text = combinedText;
-                
-                NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
-                NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
-                
-                NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
-                
-                
-                NSDictionary *attrDictt = @{
-                                            NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
-                                            NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                            };
-                
-                
-                //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                [attributedTextt setAttributes:attrDictt  range:range22];
-                
-                [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
-                                         range:range11];
-                
-                
-                cell.commentAttributedLabelTwo.attributedText = attributedTextt;
-                
-                
-                
-                
-                
-                
-                
-                
-                NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
-                
-                
-                
-                
-                
-                
-                NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
-                
-                
-                NSString *yStringgg = [splitStringgg objectAtIndex:1];
-                
-                NSString* localTimeee;
-                
-                if ([yStringgg containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
-                    
-                    
-                    NSString* testOne = [arrrr objectAtIndex:0];
-                    
-                    
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
-                    
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
-                    
-                    
-                    
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-                    
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-                    
-                    localTimeee = [tr formattedAsTimeAgoThree];
-                    //   NSString* localTime = [dateFormatter stringFromDate:tr];
-                    
-                    NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
-                    
-                }
-                
-                
-                NSString * commetAttrTextTwooo = localTimeee;
-                
-                //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
-                
-                
-                cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
-                
-                
-                NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
-                
-                NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
-                
-                
-                
-                CGFloat boldTextFontSizeeeee = 12.0f;
-                
-                CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
-                
-                //  cell.commentAttributedLabel.text = combinedText;
-                
-                NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
-                NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
-                
-                NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
-                
-                
-                NSDictionary *attrDicttt = @{
-                                             NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
-                                             NSForegroundColorAttributeName : [UIColor darkGrayColor]
-                                             };
-                
-                
-                //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
-                [attributedTexttt setAttributes:attrDicttt  range:range222];
-                
-                [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
-                                          range:range111];
-                
-                
-                cell.commentAttributedLabelThree.attributedText = attributedTexttt;
-                
-                
-                
-                
-            
-                [cell.showMoreComments setHidden:NO];
-                 [cell.totalComments setHidden:YES];
-                
-            }
-            
-            // Post is Live Or Done
-         
-            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0 ) {
-                
-            
-                
                     // [cell.timerCell setHidden:NO];
-               // [cell.remainingLabel setHidden:NO];
-                
-                
-                NSString *stringTimer =[[globalArray valueForKey:@"EndDate"] objectAtIndex:indexPath.section];
-                
-                
-                NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
-                NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
-                
-                NSString *xString = [splitString objectAtIndex:0];
-                NSString *yString = [splitString objectAtIndex:1];
-                
-                
-                
-                if ([yString containsString:@"-"]) {
-                    
-                    NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                    // [cell.remainingLabel setHidden:NO];
                     
                     
-                    NSString* testOne = [arrrr objectAtIndex:0];
+                    NSString *stringTimer =[[globalArray valueForKey:@"EndDate"] objectAtIndex:indexPath.section];
                     
                     
-                    NSString* beforeConvert =[arrrr objectAtIndex:1];
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
                     
-                    NSString*mystr=[beforeConvert substringToIndex:2];
-                    
-                    NSInteger multipliedVal = [mystr integerValue] * 3600000;
-                    
-                    NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
-                    
-                    
-                    NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                    NSString *xString = [splitString objectAtIndex:0];
+                    NSString *yString = [splitString objectAtIndex:1];
                     
                     
                     
-                    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-                    
-                    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
-                    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-                    
-                    
-                    NSString* localTime = [dateFormatter stringFromDate:tr];
-                    
-                    NSLog(@"localTime:%@", localTime);
-                    
-                    NSDateFormatter *dateFormatterCurrent=[[NSDateFormatter alloc] init];
-                    [dateFormatterCurrent setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-                    // or @"yyyy-MM-dd hh:mm:ss a" if you prefer the time with AM/PM
-                    
-                    
-                    
-                    NSString* localCurrentTime = [dateFormatterCurrent stringFromDate:[NSDate date]];
-                 //   NSLog(@"current time :%@",localCurrentTime);
-                    
-                    NSTimeInterval diff = [tr timeIntervalSinceDate:[NSDate date]];
-                    
-                  //  NSLog(@"difffereeenceee %f",diff*1000 );
-                    
-                    valText = diff*1000;
-                    
-                  
-                    float seconds = valText / 1000.0;
-                    float minutes = seconds / 60.0;
-                    
-                    
-                    testVa = minutes/1440;
-                                     
-                 
-                    
-//                    float percentVal = testVa * 100;
-//                    
-//                    float percentFinalVal = percentVal/100
-//                    
-              
-                    if ([[self calculateTimer] isEqualToString:@""]) {
-                        [cell.timerCell setHidden:YES];
-                        [cell.progresssView setHidden:YES];
-                    }
-                    
-                    else{
-                   
-                 cell.timerCell.text =  [self calculateTimer];
+                    if ([yString containsString:@"-"]) {
                         
-                                              
-                    
-                    }
-                    
-//                    
-//                    if (valText >0 && valText <86400000 ) {
-////                        _timerCalc = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(runScheduledTask:) userInfo:nil repeats:NO];
-//                        
-//                        
-//                        NSDate *date = [NSDate dateWithTimeIntervalSince1970:(valText / 1000.0)];
-//                        
-//                        NSString* localTimeee =[NSString stringWithFormat:@"%@",date];
-//                        
-//                        NSArray *seperateVal =  [localTimeee componentsSeparatedByString:@" "];
-//                        
-//                        NSArray *timeSplit = [[seperateVal objectAtIndex:1] componentsSeparatedByString:@":"];
-//                        
-//                        
-//                      NSString*  exactTimeee = [NSString stringWithFormat:@"%@h. %@m. %@s.",[timeSplit objectAtIndex:0],[timeSplit objectAtIndex:1],[timeSplit objectAtIndex:2]];
-//                        
-//                        cell.timerCell.text  = exactTimeee;
-//                        
-//                        NSLog(@"timerrrr : %@",cell.timerCell.text);
-//                        
-//
-//                        
-//                    }
-//                    
-//                    
-//                    
-                    
-                }
-                
-                
-                
-                /*******/
-                [cell.yesNoMainView setHidden:NO];
-                [cell.yesNoButtonView setHidden:YES];
-                [cell.yesNoNotDoneButtonView setHidden:NO];
-                cell.leftButton.userInteractionEnabled = YES;
-                cell.rightButton.userInteractionEnabled = YES;
-                
-                [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
-                [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
-                
-                [cell.reheyVoteButton setHidden:YES];
-                
-                
-                //Has Voted Or not Button View
-                
-                
-                if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 0) {
-                    
-                    if ([voteResultAraay containsObject:[globalArray objectAtIndex:indexPath.section]]) {
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
                         
                         
                         
-                        if ([voteResultVal isEqualToString:@"leftvoted"] || [voteResultVal isEqualToString:@"rightvoted"]) {
-                            
-              
-                            [cell.progresssView setHidden:NO];
-                            [cell.timerCell setHidden:NO];
-                            [cell.remainingLabel setHidden:NO];
-                            
-                            cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
-                                                                                      green:0.0f/255.0f
-                                                                                       blue:20.0f/255.0f
-                                                                                      alpha:0.7f];
-                            cell.circularProgress.max = 1.0f;
-                            cell.circularProgress.fillRadiusPx = 25;
-                            cell.circularProgress.step = 0.1f;
-                            cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
-                            cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
-                            cell.circularProgress.outlineWidth = 1;
-                            cell.circularProgress.outlineTintColor = [UIColor whiteColor];
-                            cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
-                            
-                            
-                            [[HKCircularProgressView appearance] setAnimationDuration:5];
-                            
-                            cell.circularProgress.alwaysDrawOutline = YES;
-                            
-                            
-                            cell.insideProgress.fillRadius = 1;
-                            cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
-                            cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
-                            [cell.circularProgress setCurrent:testVa
-                                                     animated:YES];
-                            [cell.insideProgress setCurrent:1.0f
-                                                   animated:YES];
-                            
-                            
-
-                            NSString*uVoted;
-                            
-                            // [cell.yesNoMainView setHidden:YES];
-                            
-                            if ([voteResultVal isEqualToString:@"leftvoted"]) {
-                              
-                                cell.leftButton.userInteractionEnabled = NO;
-                                cell.rightButton.userInteractionEnabled = NO;
-                                
-                                [cell.leftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
-                                                                                    green:200.0f/255.0f
-                                                                                     blue:200.0f/255.0f
-                                                                                    alpha:1.0f]];
-                                [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
-                                
-                                
-                                
-                            }
-                            
-                            else if([voteResultVal isEqualToString:@"rightvoted"] == 1) {
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
                         
-                                
-                                cell.leftButton.userInteractionEnabled = NO;
-                                cell.rightButton.userInteractionEnabled = NO;
-                                
-                                [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
-                                [cell.rightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
-                                                                                     green:200.0f/255.0f
-                                                                                      blue:200.0f/255.0f
-                                                                                     alpha:1.0f]];
-                                
-                                
-                            }
-                            
-                            cell.youHaveVotedLabel.text =uVoted;
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        
+                        NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTime:%@", localTime);
+                        
+                        NSDateFormatter *dateFormatterCurrent=[[NSDateFormatter alloc] init];
+                        [dateFormatterCurrent setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        // or @"yyyy-MM-dd hh:mm:ss a" if you prefer the time with AM/PM
+                        
+                        
+                        
+                        NSString* localCurrentTime = [dateFormatterCurrent stringFromDate:[NSDate date]];
+                        //   NSLog(@"current time :%@",localCurrentTime);
+                        
+                        NSTimeInterval diff = [tr timeIntervalSinceDate:[NSDate date]];
+                        
+                        //  NSLog(@"difffereeenceee %f",diff*1000 );
+                        
+                        valText = diff*1000;
+                        
+                        
+                        float seconds = valText / 1000.0;
+                        float minutes = seconds / 60.0;
+                        
+                        
+                        testVa = minutes/1440;
+                        
+                        
+                        
+                        //                    float percentVal = testVa * 100;
+                        //
+                        //                    float percentFinalVal = percentVal/100
+                        //
+                        
+                        if ([[self calculateTimer] isEqualToString:@""]) {
+                            [cell.timerCell setHidden:YES];
+                            [cell.progresssView setHidden:YES];
                         }
                         
                         else{
                             
+                            cell.timerCell.text =  [self calculateTimer];
                             
                             
-                            [cell.yesNoMainView setHidden:NO];
-                            [cell.yesNoButtonView setHidden:YES];
-                            [cell.yesNoNotDoneButtonView setHidden:NO];
+                            
+                        }
+                        
+                        //
+                        //                    if (valText >0 && valText <86400000 ) {
+                        ////                        _timerCalc = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(runScheduledTask:) userInfo:nil repeats:NO];
+                        //
+                        //
+                        //                        NSDate *date = [NSDate dateWithTimeIntervalSince1970:(valText / 1000.0)];
+                        //
+                        //                        NSString* localTimeee =[NSString stringWithFormat:@"%@",date];
+                        //
+                        //                        NSArray *seperateVal =  [localTimeee componentsSeparatedByString:@" "];
+                        //
+                        //                        NSArray *timeSplit = [[seperateVal objectAtIndex:1] componentsSeparatedByString:@":"];
+                        //
+                        //
+                        //                      NSString*  exactTimeee = [NSString stringWithFormat:@"%@h. %@m. %@s.",[timeSplit objectAtIndex:0],[timeSplit objectAtIndex:1],[timeSplit objectAtIndex:2]];
+                        //
+                        //                        cell.timerCell.text  = exactTimeee;
+                        //
+                        //                        NSLog(@"timerrrr : %@",cell.timerCell.text);
+                        //
+                        //
+                        //
+                        //                    }
+                        //
+                        //
+                        //
+                        
+                    }
+                    
+                    
+                    
+                    /*******/
+                    [cell.yesNoMainView setHidden:NO];
+                    [cell.yesNoButtonView setHidden:YES];
+                    [cell.yesNoNotDoneButtonView setHidden:NO];
+                    cell.leftButton.userInteractionEnabled = YES;
+                    cell.rightButton.userInteractionEnabled = YES;
+                    
+                    [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    [cell.reheyVoteButton setHidden:YES];
+                    
+                    
+                    //Has Voted Or not Button View
+                    
+                    
+                    if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                        
+                        if ([voteResultAraay containsObject:[globalArray objectAtIndex:indexPath.section]]) {
+                            
+                            
+                            
+                            if ([voteResultVal isEqualToString:@"leftvoted"] || [voteResultVal isEqualToString:@"rightvoted"]) {
+                                
+                                
+                                [cell.progresssView setHidden:NO];
+                                [cell.timerCell setHidden:NO];
+                                [cell.remainingLabel setHidden:NO];
+                                
+                                cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                          green:0.0f/255.0f
+                                                                                           blue:20.0f/255.0f
+                                                                                          alpha:0.7f];
+                                cell.circularProgress.max = 1.0f;
+                                cell.circularProgress.fillRadiusPx = 25;
+                                cell.circularProgress.step = 0.1f;
+                                cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                                cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                cell.circularProgress.outlineWidth = 1;
+                                cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                                cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                                
+                                
+                                [[HKCircularProgressView appearance] setAnimationDuration:5];
+                                
+                                cell.circularProgress.alwaysDrawOutline = YES;
+                                
+                                
+                                cell.insideProgress.fillRadius = 1;
+                                cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                                cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                [cell.circularProgress setCurrent:testVa
+                                                         animated:YES];
+                                [cell.insideProgress setCurrent:1.0f
+                                                       animated:YES];
+                                
+                                
+                                
+                                NSString*uVoted;
+                                
+                                // [cell.yesNoMainView setHidden:YES];
+                                
+                                if ([voteResultVal isEqualToString:@"leftvoted"]) {
+                                    
+                                    cell.leftButton.userInteractionEnabled = NO;
+                                    cell.rightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.leftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                        green:200.0f/255.0f
+                                                                                         blue:200.0f/255.0f
+                                                                                        alpha:1.0f]];
+                                    [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                else if([voteResultVal isEqualToString:@"rightvoted"] == 1) {
+                                    
+                                    
+                                    cell.leftButton.userInteractionEnabled = NO;
+                                    cell.rightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.rightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                         green:200.0f/255.0f
+                                                                                          blue:200.0f/255.0f
+                                                                                         alpha:1.0f]];
+                                    
+                                    
+                                }
+                                
+                                cell.youHaveVotedLabel.text =uVoted;
+                            }
+                            
+                            else{
+                                
+                                
+                                
+                                [cell.yesNoMainView setHidden:NO];
+                                [cell.yesNoButtonView setHidden:YES];
+                                [cell.yesNoNotDoneButtonView setHidden:NO];
+                            }
+                            
                         }
                         
                     }
                     
+                    else if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 1 ) {
+                        // [cell.yesNoMainView setHidden:YES];
+                        
+                        [cell.progresssView setHidden:NO];
+                        [cell.timerCell setHidden:NO];
+                        [cell.remainingLabel setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                        
+                        
+                        NSString*uVoted;
+                        
+                        
+                        if ([[[globalArray valueForKey:@"VoteOption"] objectAtIndex:indexPath.section] integerValue] == 0) {
+                            
+                            cell.leftButton.userInteractionEnabled = NO;
+                            cell.rightButton.userInteractionEnabled = NO;
+                            
+                            [cell.leftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                green:200.0f/255.0f
+                                                                                 blue:200.0f/255.0f
+                                                                                alpha:1.0f]];
+                            [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                            
+                        }
+                        
+                        else if([[[globalArray valueForKey:@"VoteOption"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                            
+                            cell.leftButton.userInteractionEnabled = NO;
+                            cell.rightButton.userInteractionEnabled = NO;
+                            
+                            
+                            
+                            [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.rightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                 green:200.0f/255.0f
+                                                                                  blue:200.0f/255.0f
+                                                                                 alpha:1.0f]];
+                            
+                            
+                        }
+                        
+                        cell.youHaveVotedLabel.text =uVoted;
+                    }
+                    
+                    
+                    
+                    
+                    
                 }
                 
-                else if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 1 ) {
-                    // [cell.yesNoMainView setHidden:YES];
+                
+                
+                else if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 1) {
+                    [cell.timerCell setHidden:YES];
+                    [cell.remainingLabel setHidden:YES];
                     
-                    [cell.progresssView setHidden:NO];
-                    [cell.timerCell setHidden:NO];
-                    [cell.remainingLabel setHidden:NO];
-                    
-                    cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
-                                                                              green:0.0f/255.0f
-                                                                               blue:20.0f/255.0f
-                                                                              alpha:0.7f];
-                    cell.circularProgress.max = 1.0f;
-                    cell.circularProgress.fillRadiusPx = 25;
-                    cell.circularProgress.step = 0.1f;
-                    cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
-                    cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
-                    cell.circularProgress.outlineWidth = 1;
-                    cell.circularProgress.outlineTintColor = [UIColor whiteColor];
-                    cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                    [cell.yesNoMainView setHidden:NO];
+                    [cell.yesNoButtonView setHidden:NO];
+                    [cell.yesNoNotDoneButtonView setHidden:YES];
+                    cell.leftButton.userInteractionEnabled = NO;
+                    cell.rightButton.userInteractionEnabled = NO;
                     
                     
-                    [[HKCircularProgressView appearance] setAnimationDuration:5];
+                    [cell.reheyVoteButton setHidden:NO];
                     
-                    cell.circularProgress.alwaysDrawOutline = YES;
+                }
+                
+                
+                
+                //Button Caption (YES/NO)
+                [cell.leftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.rightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.leftResultButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.rightResultButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                //   return cell;
+                
+                
+                
+                
+            }
+            
+            else if ([[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 3){
+                
+                
+                
+                
+                
+                
+                //[self.mc pause];
+                //             videoplayer.muted = YES;
+                //            [videoplayer pause];
+                
+                
+                NSString * locationName = [[globalArray valueForKey:@"LocationName"] objectAtIndex:indexPath.section];
+                if ([locationName length] > 0) {
+                    [cell.checkInView setHidden:NO];
+                    [cell.checkinButton setTitle:locationName forState: UIControlStateNormal];
+                }
+                
+                
+                
+                
+                [cell.proImageView setHidden:NO];
+             //   [cell.buttonOverImage setHidden:NO];
+                [cell.voiceView setHidden:YES];
+                
+                
+                
+                //Post Image
+                
+                NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:indexPath.section]];
+                
+                
+                
+                
+                
+                //            cell.proImageView.layer.shadowColor = [UIColor blackColor].CGColor;
+                //            cell.proImageView.layer.shadowOpacity = 0.3f;
+                //            cell.proImageView.layer.shadowOffset = CGSizeMake(10.0f, 10.0f);
+                //            cell.proImageView.layer.shadowRadius = 4.0f;
+                //            cell.proImageView.layer.masksToBounds = NO;
+                //
+                //            UIBezierPath *path = [UIBezierPath bezierPathWithRect:cell.proImageView.bounds];
+                //            cell.proImageView.layer.shadowPath = path.CGPath;
+                
+                [cell.proImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"] options:SDWebImageRefreshCached];
+                //Post Vote percentage
+                
+                
+                
+                
+                NSString*percent = @"%";
+                
+                NSString*vote1 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount1"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                 NSString*vote3 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount3"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section],percent];
+                
+//                
+//                if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]) {
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    [cell.leftWinnerImage setHidden:NO];
+//                    [cell.rightWinnerImage setHidden:YES];
+//                    
+//                }
+//                
+//                else if([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] == [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
+//                    
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    [cell.leftWinnerImage setHidden:YES];
+//                    [cell.rightWinnerImage setHidden:YES];
+//                    
+//                    
+//                    
+//      
+//                }
+//                
+//                else{
+//                    
+//                    
+//                    cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                    cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                    
+//                    
+//                    
+//                    cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                    cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                    
+//                    [cell.leftWinnerImage setHidden:YES];
+//                    [cell.rightWinnerImage setHidden:NO];
+//                    
+//                    //
+//                    //                [cell.leftTickImage setHidden:YES];
+//                    //                [cell.rightTickImage setHidden:NO];
+//                }
+//
+                
+                
+                
+                
+                
+              if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] ) {
+                  
+                  
+                  
+                  
+                  
+                  
+                  if (screenWidthios == 320) {
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                       CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                     CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else if (screenWidthios == 375){
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else{
+                      
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                  }
+                  
+                  
+                  
+                  
+                //  cell.threeVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                  cell.threeVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                  
+                  
+                  
+               // cell.threeVersusFinalRightVote.textColor = [UIColor whiteColor];
+                cell.threeVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                  
+                  
+                  
+               //   cell.threeVersusVotesLabelRight.textColor = [UIColor whiteColor];
+                  cell.threeVersusRightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                  
+//                [cell.threeVersusFinalWinnerLeft setHidden:NO];
+//                [cell.threeVersusFinalWinnerRight setHidden:YES];
+//                  [cell.threeVersusRightWinnerImage setHidden:YES];
+                  
+              }
+                
+              else if ([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue]){
+                  
+                  
+                  
+                  
+                  if (screenWidthios == 320) {
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else if (screenWidthios == 375){
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else{
+                      
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                  }
+                  
+                  
+                  
+                  
+                  
+                  
+                 // cell.threeVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                  cell.threeVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                  
+                  
+                  
+               //   cell.threeVersusFinalRightVote.textColor = [UIColor whiteColor];
+                  cell.threeVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                  
+                  
+                  
+                //  cell.threeVersusVotesLabelRight.textColor = [UIColor whiteColor];
+                  cell.threeVersusRightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                  
+//                  [cell.threeVersusFinalWinnerLeft setHidden:YES];
+//                  [cell.threeVersusFinalWinnerRight setHidden:NO];
+//                  [cell.threeVersusRightWinnerImage setHidden:YES];
+                  
+              }
+                
+              else if ([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
+                  
+                  
+                  if (screenWidthios == 320) {
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else if (screenWidthios == 375){
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                      
+                      
+                  }
+                  
+                  else{
+                      
+                      
+                      
+                      CGRect buttonFrame = CGRectMake(cell.threeVersusFinalLeftButton.frame.origin.x, cell.threeVersusFinalLeftVote.frame.origin.y, cell.threeVersusFinalLeftButton.frame.size.width, cell.threeVersusFinalLeftVote.frame.size.height);
+                      buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalLeftVote.frame.size.height);
+                      cell.threeVersusFinalLeftButton.frame = buttonFrame;
+                      
+                      
+                      
+                      
+                      CGRect buttonFrame2 = CGRectMake(cell.threeVersusFinalRightButton.frame.origin.x, cell.threeVersusFinalRightVote.frame.origin.y, cell.threeVersusFinalRightButton.frame.size.width, cell.threeVersusFinalRightVote.frame.size.height);
+                      buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusFinalRightVote.frame.size.height);
+                      cell.threeVersusFinalRightButton.frame = buttonFrame2;
+                      
+                      
+                      CGRect buttonFrame3 = CGRectMake(cell.threeVersusRightResultButton.frame.origin.x, cell.threeVersusVotesLabelRight.frame.origin.y, cell.threeVersusRightResultButton.frame.size.width, cell.threeVersusVotesLabelRight.frame.size.height);
+                      buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 390, cell.threeVersusVotesLabelRight.frame.size.height);
+                      cell.threeVersusRightResultButton.frame = buttonFrame3;
+                      
+                  }
+                  
+                  
+                  
+                  
+              }
+
+                
+                
+                cell.threeVersusFinalLeftVote.text = vote1;
+                cell.threeVersusFinalRightVote.text = vote2;
+                cell.threeVersusVotesLabelRight.text = vote3;
+                
+                
+                //Total HeyVote Counts
+                
+                
+                NSString* totalVotes = [NSString stringWithFormat:@"%@ HeyVotes",[[globalArray valueForKey:@"VoteCount"] objectAtIndex:indexPath.section]];
+                
+                cell.totalVotesLabel.text = totalVotes;
+                
+                
+                //Comments Count
+                
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count]  >1) {
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
+                    
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
+                }
+                
+                else{
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
                     
                     
-                    cell.insideProgress.fillRadius = 1;
-                    cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
-                    cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
-                    [cell.circularProgress setCurrent:testVa
-                                             animated:YES];
-                    [cell.insideProgress setCurrent:1.0f
-                                           animated:YES];
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
                     
+                }
+                
+                
+                //Post Title
+                
+                [cell.titleLabelView setHidden:YES];
+                
+                
+                
+                //Comment Attribute Label
+                
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        NSString* localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                        
+                        //                [cell.commentAttributedLabel setHidden:NO];
+                        //                [cell.showMoreComments setHidden:YES];
+                        
+                        //
+                        //      NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                        cell.commentAttributedLabelFirst.text= [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                        
+                        NSString * commetAttrTextTwo = localTime;
+                        
+                        NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                        
+                        NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                        
+                        
+                        
+                        CGFloat boldTextFontSize = 12.0f;
+                        
+                        CGFloat boldTextFontSizeee = 10.0f;
+                        
+                        //  cell.commentAttributedLabel.text = combinedText;
+                        
+                        NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                        NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                        
+                        NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                        
+                        
+                        NSDictionary *attrDict = @{
+                                                   NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                                   NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                   };
+                        
+                        
+                        //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                        [attributedText setAttributes:attrDict  range:range2];
+                        
+                        
+                        [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                                range:range1];
+                        
+                        
+                        cell.commentAttributedLabel.attributedText = attributedText;
+                        
+                        
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                }
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text =  cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
+                    
+                }
+                
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
+                    
+                    
+                    [cell.showMoreComments setHidden:NO];
+                    [cell.totalComments setHidden:YES];
+                    
+                }
+                
+                // Post is Live Or Done
+                
+                if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0 ) {
+                    
+                    
+                    
+                    // [cell.timerCell setHidden:NO];
+                    // [cell.remainingLabel setHidden:NO];
+                    
+                    
+                    NSString *stringTimer =[[globalArray valueForKey:@"EndDate"] objectAtIndex:indexPath.section];
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    NSString *xString = [splitString objectAtIndex:0];
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        
+                        NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTime:%@", localTime);
+                        
+                        NSDateFormatter *dateFormatterCurrent=[[NSDateFormatter alloc] init];
+                        [dateFormatterCurrent setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        // or @"yyyy-MM-dd hh:mm:ss a" if you prefer the time with AM/PM
+                        
+                        
+                        
+                        NSString* localCurrentTime = [dateFormatterCurrent stringFromDate:[NSDate date]];
+                        //   NSLog(@"current time :%@",localCurrentTime);
+                        
+                        NSTimeInterval diff = [tr timeIntervalSinceDate:[NSDate date]];
+                        
+                        //  NSLog(@"difffereeenceee %f",diff*1000 );
+                        
+                        valText = diff*1000;
+                        
+                        
+                        float seconds = valText / 1000.0;
+                        float minutes = seconds / 60.0;
+                        
+                        
+                        testVa = minutes/1440;
+                        
+                        
+                        
+                        //                    float percentVal = testVa * 100;
+                        //
+                        //                    float percentFinalVal = percentVal/100
+                        //
+                        
+                        if ([[self calculateTimer] isEqualToString:@""]) {
+                            [cell.timerCell setHidden:YES];
+                            [cell.progresssView setHidden:YES];
+                        }
+                        
+                        else{
+                            
+                            cell.timerCell.text =  [self calculateTimer];
+                            
+                            
+                            
+                        }
+                        
+                        //
+                        //                    if (valText >0 && valText <86400000 ) {
+                        ////                        _timerCalc = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(runScheduledTask:) userInfo:nil repeats:NO];
+                        //
+                        //
+                        //                        NSDate *date = [NSDate dateWithTimeIntervalSince1970:(valText / 1000.0)];
+                        //
+                        //                        NSString* localTimeee =[NSString stringWithFormat:@"%@",date];
+                        //
+                        //                        NSArray *seperateVal =  [localTimeee componentsSeparatedByString:@" "];
+                        //
+                        //                        NSArray *timeSplit = [[seperateVal objectAtIndex:1] componentsSeparatedByString:@":"];
+                        //
+                        //
+                        //                      NSString*  exactTimeee = [NSString stringWithFormat:@"%@h. %@m. %@s.",[timeSplit objectAtIndex:0],[timeSplit objectAtIndex:1],[timeSplit objectAtIndex:2]];
+                        //
+                        //                        cell.timerCell.text  = exactTimeee;
+                        //
+                        //                        NSLog(@"timerrrr : %@",cell.timerCell.text);
+                        //
+                        //
+                        //
+                        //                    }
+                        //
+                        //
+                        //
+                        
+                    }
+                    
+                    
+                    
+                    /*******/
+                    [cell.threeVersusYesNoMainView setHidden:NO];
+                    [cell.threeVersusFirstSecondYesNoMainView setHidden:NO];
+                    [cell.threeVersusYesNoButtonView setHidden:YES];
+                    [cell.threeVersusFirstSecondYesNoView setHidden:YES];
+                    [cell.threeVersusYesNoNotDoneButton setHidden:NO];
+                    
+                    [cell.threeVersusZeroComment setHidden:NO];
+                    
+                    
+                    [cell.threeVersusFirstSecondNotDoneView setHidden:NO];
+                    
+                    
+                    
+                    
+                  //  cell.threeVersusFinalLeftButton.userInteractionEnabled = YES;
+                  //  cell.threeVersusFinalRightButton.userInteractionEnabled = YES;
+                    
+                  // [cell.threeVersusFinalLeftButton setBackgroundColor:[UIColor whiteColor]];
+                  //  [cell.threeVersusFinalRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = YES;
+                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = YES;
+                    
+                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    cell.threeVersusRightButton.userInteractionEnabled = YES;
+                  //  cell.threeVersusRightResultButton.userInteractionEnabled = YES;
+                    
+                    [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                //    [cell.threeVersusRightResultButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    [cell.reheyVoteButton setHidden:YES];
+                    
+                    
+                    //Has Voted Or not Button View
+                    
+                    
+                    if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                        
+                        if ([voteResultAraayThreeVersus containsObject:[globalArray objectAtIndex:indexPath.section]]) {
+                            
+                       
+                            
+                            if ([voteResultValThreeVersus isEqualToString:@"leftvoted"] || [voteResultValThreeVersus isEqualToString:@"rightvoted"] || [voteResultValThreeVersus isEqualToString:@"downvoted"] ) {
+                                
+                                
+                                
+                                
+                                [cell.progresssView setHidden:NO];
+                                [cell.timerCell setHidden:NO];
+                                [cell.remainingLabel setHidden:NO];
+                                
+                                cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                          green:0.0f/255.0f
+                                                                                           blue:20.0f/255.0f
+                                                                                          alpha:0.7f];
+                                cell.circularProgress.max = 1.0f;
+                                cell.circularProgress.fillRadiusPx = 25;
+                                cell.circularProgress.step = 0.1f;
+                                cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                                cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                cell.circularProgress.outlineWidth = 1;
+                                cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                                cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                                
+                                
+                                [[HKCircularProgressView appearance] setAnimationDuration:5];
+                                
+                                cell.circularProgress.alwaysDrawOutline = YES;
+                                
+                                
+                                cell.insideProgress.fillRadius = 1;
+                                cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                                cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                [cell.circularProgress setCurrent:testVa
+                                                         animated:YES];
+                                [cell.insideProgress setCurrent:1.0f
+                                                       animated:YES];
+                                
+                                
+                                
+                                NSString*uVoted;
+                                
+                                // [cell.yesNoMainView setHidden:YES];
+                                
+                                if ([voteResultValThreeVersus isEqualToString:@"leftvoted"]) {
+                                    
+                                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.threeVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                        green:200.0f/255.0f
+                                                                                         blue:200.0f/255.0f
+                                                                                        alpha:1.0f]];
+                                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                                     [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                else if([voteResultValThreeVersus isEqualToString:@"rightvoted"] ) {
+                                    
+                                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.threeVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                               green:200.0f/255.0f
+                                                                                                                blue:200.0f/255.0f
+                                                                                                               alpha:1.0f]];
+                                    [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                
+                                
+                                else if([voteResultValThreeVersus isEqualToString:@"downvoted"] ) {
+                                    
+                                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.threeVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.threeVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                    green:200.0f/255.0f
+                                                                                                     blue:200.0f/255.0f
+                                                                                                    alpha:1.0f]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                cell.youHaveVotedLabel.text =uVoted;
+                            }
+                            
+                            
+                            
+                            else{
+                                
+                                
+                                
+                                [cell.threeVersusYesNoMainView setHidden:NO];
+                                [cell.threeVersusYesNoButtonView setHidden:YES];
+                                [cell.threeVersusYesNoNotDoneButton setHidden:NO];
+                                
+                                [cell.threeVersusZeroComment setHidden:NO];
+                                [cell.threeVersusFirstSecondYesNoMainView setHidden:NO];
+                                [cell.threeVersusFirstSecondYesNoView setHidden:YES];
+                                [cell.threeVersusFirstSecondNotDoneView setHidden:NO];
+                                
+                            }
+                            
+                       }
+                        
+                    }
+                    
+                    else if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 1 ) {
+                        // [cell.yesNoMainView setHidden:YES];
+                        
+                        [cell.progresssView setHidden:NO];
+                        [cell.timerCell setHidden:NO];
+                        [cell.remainingLabel setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                        
+                        
+                        NSString*uVoted;
+           
+                        
+                        
+                        if ([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 0) {
+                            
+                            cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.threeVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                      green:200.0f/255.0f
+                                                                                                       blue:200.0f/255.0f
+                                                                                                      alpha:1.0f]];
+                            [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                            
+                            
+                            
+                        }
+                        
+                        else if([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                            
+                            
+                            cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.threeVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                       green:200.0f/255.0f
+                                                                                                        blue:200.0f/255.0f
+                                                                                                       alpha:1.0f]];
+                            [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                        }
+                        
+                        
+                        
+                        else if([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 2) {
+                            
+                            
+                            cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.threeVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.threeVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                            green:200.0f/255.0f
+                                                                                             blue:200.0f/255.0f
+                                                                                            alpha:1.0f]];
+                            
+                            
+
+                            
+                        }
+                        
+                    }
 
                     
+                }
+                
+                
+                
+                else if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 1) {
+                    [cell.timerCell setHidden:YES];
+                    [cell.remainingLabel setHidden:YES];
+                 
+                    [cell.threeVersusYesNoMainView setHidden:NO];
+                    [cell.threeVersusYesNoButtonView setHidden:NO];
+                    [cell.threeVersusYesNoNotDoneButton setHidden:YES];
                     
-                    NSString*uVoted;
+                    [cell.threeVersusZeroComment setHidden:YES];
+                    cell.threeVersusRightButton.userInteractionEnabled = NO;
                     
                     
-                    if ([[[globalArray valueForKey:@"VoteOption"] objectAtIndex:indexPath.section] integerValue] == 0) {
-                     
-                        cell.leftButton.userInteractionEnabled = NO;
-                        cell.rightButton.userInteractionEnabled = NO;
+                    [cell.threeVersusFirstSecondYesNoMainView setHidden:NO];
+                    [cell.threeVersusFirstSecondYesNoView setHidden:NO];
+                    [cell.threeVersusFirstSecondNotDoneView setHidden:YES];
+                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    [cell.reheyVoteButton setHidden:NO];
+                    
+                }
+                
+                
+                
+                //Button Caption (YES/NO)
+                [cell.threeVersusFirstSecondLeftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.threeVersusFirstSecondRightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.threeVersusRightButton setTitle:[[globalArray valueForKey:@"Caption3"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.threeVersusFinalLeftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.threeVersusFinalRightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                
+                [cell.threeVersusRightResultButton setTitle:[[globalArray valueForKey:@"Caption3"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                
+                //   return cell;
+                
+                
+                
+                
+            }
+            else if ([[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section]integerValue] == 4){
+                
+
+                
+                NSString * locationName = [[globalArray valueForKey:@"LocationName"] objectAtIndex:indexPath.section];
+                if ([locationName length] > 0) {
+                    [cell.checkInView setHidden:NO];
+                    [cell.checkinButton setTitle:locationName forState: UIControlStateNormal];
+                }
+
+                [cell.proImageView setHidden:NO];
+                //   [cell.buttonOverImage setHidden:NO];
+                [cell.voiceView setHidden:YES];
+                
+                
+                
+                //Post Image
+                
+                NSString * imageString = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[globalArray valueForKey:@"Image1Idf"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"PostFolderPath"] objectAtIndex:indexPath.section]];
+                
+
+                [cell.proImageView  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholder.png"] options:SDWebImageRefreshCached];
+                //Post Vote percentage
+                
+                
+                
+                
+                NSString*percent = @"%";
+                
+                NSString*vote1 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount1"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
+                
+                
+                NSString*vote3 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount3"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section],percent];
+                
+                   NSString*vote4 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount4"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section],percent];
+                
+     
+                
+                if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue]) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    if (screenWidthios == 320) {
                         
-                        [cell.leftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
-                                                                            green:200.0f/255.0f
-                                                                             blue:200.0f/255.0f
-                                                                            alpha:1.0f]];
-                        [cell.rightButton setBackgroundColor:[UIColor whiteColor]];
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
                         
                         
                     }
                     
-                    else if([[[globalArray valueForKey:@"VoteOption"] objectAtIndex:indexPath.section] integerValue] == 1) {
-                        
-                        cell.leftButton.userInteractionEnabled = NO;
-                        cell.rightButton.userInteractionEnabled = NO;
+                    else if (screenWidthios == 375){
                         
                         
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
                         
-                        [cell.leftButton setBackgroundColor:[UIColor whiteColor]];
-                        [cell.rightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
-                                                                             green:200.0f/255.0f
-                                                                              blue:200.0f/255.0f
-                                                                             alpha:1.0f]];
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
                         
                         
                     }
                     
-                    cell.youHaveVotedLabel.text =uVoted;
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                   // cell.fourVersusFirstSecondLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalLeftButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                    
+                    
+                    
+                   // cell.fourVersusFirstSecondRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                  //  cell.fourVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                  //  cell.fourVersusFinalRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+//                    
+//                    [cell.fourVersusFirstSecondLeftWinnerImage setHidden:NO];
+//                    [cell.fourVersusFirstSecondRightWinnerImage setHidden:YES];
+//                    [cell.fourVersusLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusRightWinnerImage setHidden:YES];
+                    
+                }
+                
+                else if ([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue]){
+                    
+                    
+                    
+                    if (screenWidthios == 320) {
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                        
+                    }
+                    
+                    else if (screenWidthios == 375){
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                   // cell.fourVersusFirstSecondLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                   // cell.fourVersusFirstSecondRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalRightButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                    
+                    
+                    
+                   // cell.fourVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                   // cell.fourVersusFinalRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+//                    [cell.fourVersusFirstSecondLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusFirstSecondRightWinnerImage setHidden:NO];
+//                    [cell.fourVersusLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusRightWinnerImage setHidden:YES];
+                    
+                }
+                
+                else if ([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue]){
+                    
+                    
+                    if (screenWidthios == 320) {
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                        
+                    }
+                    
+                    else if (screenWidthios == 375){
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    
+                  //  cell.fourVersusFirstSecondLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                  //  cell.fourVersusFirstSecondRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                  //  cell.fourVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                    
+                    
+                  //  cell.fourVersusFinalRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+//                    
+//                    [cell.fourVersusFirstSecondLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusFirstSecondRightWinnerImage setHidden:YES];
+//                    [cell.fourVersusLeftWinnerImage setHidden:NO];
+//                    [cell.fourVersusRightWinnerImage setHidden:YES];
+                    
+                }
+                
+                
+                else if ([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] && [[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue]){
+                    
+                    
+                    if (screenWidthios == 320) {
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                        
+                    }
+                    
+                    else if (screenWidthios == 375){
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                  //  cell.fourVersusFirstSecondLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                   // cell.fourVersusFirstSecondRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                   // cell.fourVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                   // cell.fourVersusFinalRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                    
+                    
+//                    [cell.fourVersusFirstSecondLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusFirstSecondRightWinnerImage setHidden:YES];
+//                    [cell.fourVersusLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusRightWinnerImage setHidden:NO];
+                    
+                }
+                
+                else{
+                    
+                    
+                    if (screenWidthios == 320) {
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 215, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                        
+                    }
+                    
+                    else if (screenWidthios == 375){
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 270, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    else{
+                        
+                        
+                        
+                        CGRect buttonFrame = CGRectMake(cell.fourVersusFirstSecondFinalLeftButton.frame.origin.x, cell.fourVersusFirstSecondLeftVote.frame.origin.y, cell.fourVersusFirstSecondFinalLeftButton.frame.size.width, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondLeftVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalLeftButton.frame = buttonFrame;
+                        
+                        
+                        
+                        
+                        CGRect buttonFrame2 = CGRectMake(cell.fourVersusFirstSecondFinalRightButton.frame.origin.x, cell.fourVersusFirstSecondRightVote.frame.origin.y, cell.fourVersusFirstSecondFinalRightButton.frame.size.width, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFirstSecondRightVote.frame.size.height);
+                        cell.fourVersusFirstSecondFinalRightButton.frame = buttonFrame2;
+                        
+                        
+                        CGRect buttonFrame3 = CGRectMake(cell.fourVersusFinalLeftButton.frame.origin.x, cell.fourVersusFinalLeftVote.frame.origin.y, cell.fourVersusFinalLeftButton.frame.size.width, cell.fourVersusFinalLeftVote.frame.size.height);
+                        buttonFrame3.size = CGSizeMake([[[globalArray valueForKey:@"Vote3Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalLeftVote.frame.size.height);
+                        cell.fourVersusFinalLeftButton.frame = buttonFrame3;
+                        
+                        CGRect buttonFrame4 =CGRectMake(cell.fourVersusFinalRightButton.frame.origin.x, cell.fourVersusFinalRightVote.frame.origin.y, cell.fourVersusFinalRightButton.frame.size.width, cell.fourVersusFinalRightVote.frame.size.height);
+                        buttonFrame4.size = CGSizeMake([[[globalArray valueForKey:@"Vote4Result"] objectAtIndex:indexPath.section] integerValue] + 309, cell.fourVersusFinalRightVote.frame.size.height);
+                        cell.fourVersusFinalRightButton.frame = buttonFrame4;
+                        
+                        
+                    }
+                    
+                    
+                    
+                   // cell.fourVersusFirstSecondLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                  //  cell.fourVersusFirstSecondRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFirstSecondFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                    
+                  //  cell.fourVersusFinalLeftVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalLeftButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+                  //  cell.fourVersusFinalRightVote.textColor = [UIColor whiteColor];
+                    cell.fourVersusFinalRightButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                    
+                    
+//                    [cell.fourVersusFirstSecondLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusFirstSecondRightWinnerImage setHidden:YES];
+//                    [cell.fourVersusLeftWinnerImage setHidden:YES];
+//                    [cell.fourVersusRightWinnerImage setHidden:YES];
+                    
+                    
                 }
                 
                 
                 
                 
                 
+                
+                cell.fourVersusFirstSecondLeftVote.text = vote1;
+                cell.fourVersusFirstSecondRightVote.text = vote2;
+                cell.fourVersusFinalLeftVote.text = vote3;
+                 cell.fourVersusFinalRightVote.text = vote4;
+                
+                //Total HeyVote Counts
+                
+                
+                NSString* totalVotes = [NSString stringWithFormat:@"%@ HeyVotes",[[globalArray valueForKey:@"VoteCount"] objectAtIndex:indexPath.section]];
+                
+                cell.totalVotesLabel.text = totalVotes;
+                
+                
+                //Comments Count
+                
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count]  >1) {
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
+                    
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
+                }
+                
+                else{
+                    
+                    NSString * totalComments = [NSString stringWithFormat:@"%ld comments",(long)[[[globalArray valueForKey:@"CommentCount"] objectAtIndex:indexPath.section] integerValue]];
+                    
+                    
+                    NSMutableAttributedString *attString = [[NSMutableAttributedString alloc] initWithString:totalComments];
+                    [attString addAttribute:NSUnderlineStyleAttributeName
+                                      value:[NSNumber numberWithInt:1]
+                                      range:(NSRange){0,[attString length]}];
+                    cell.totalComments.text =totalComments;
+                    
+                }
+                
+                
+                //Post Title
+                
+                [cell.titleLabelView setHidden:YES];
+                
+                
+                
+                //Comment Attribute Label
+                
+                if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        NSString* localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                        
+                        //                [cell.commentAttributedLabel setHidden:NO];
+                        //                [cell.showMoreComments setHidden:YES];
+                        
+                        //
+                        //      NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                        cell.commentAttributedLabelFirst.text= [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                        
+                        
+                        NSString * commetAttrTextTwo = localTime;
+                        
+                        NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                        
+                        NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                        
+                        
+                        
+                        CGFloat boldTextFontSize = 12.0f;
+                        
+                        CGFloat boldTextFontSizeee = 10.0f;
+                        
+                        //  cell.commentAttributedLabel.text = combinedText;
+                        
+                        NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                        NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                        
+                        NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                        
+                        
+                        NSDictionary *attrDict = @{
+                                                   NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                                   NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                   };
+                        
+                        
+                        //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                        [attributedText setAttributes:attrDict  range:range2];
+                        
+                        
+                        [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                                range:range1];
+                        
+                        
+                        cell.commentAttributedLabel.attributedText = attributedText;
+                        
+                        
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                }
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text =  cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
+                    
+                }
+                
+                
+                
+                else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    NSString* localTime;
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTime = [tr formattedAsTimeAgo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTime);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwo = localTime;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedLabelFirst.text = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    NSString * commentAttrText = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:0];
+                    
+                    NSString * combinedText = [NSString stringWithFormat:@"%@  %@",commentAttrText,commetAttrTextTwo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSize = 12.0f;
+                    
+                    CGFloat boldTextFontSizeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range1 = [combinedText rangeOfString:commentAttrText];
+                    NSRange range2 = [combinedText rangeOfString:commetAttrTextTwo];
+                    
+                    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:combinedText];
+                    
+                    
+                    NSDictionary *attrDict = @{
+                                               NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeee],
+                                               NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                               };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedText setAttributes:attrDict  range:range2];
+                    
+                    [attributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSize]}
+                                            range:range1];
+                    
+                    
+                    cell.commentAttributedLabel.attributedText = attributedText;
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
+                    
+                    
+                    NSString *yStringg = [splitStringg objectAtIndex:1];
+                    
+                    NSString* localTimee;
+                    
+                    if ([yStringg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimee = [tr formattedAsTimeAgoTwo];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwoo = localTimee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellSecond.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:1];
+                    
+                    NSString * commentAttrTextt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:1];
+                    
+                    NSString * combinedTextt = [NSString stringWithFormat:@"%@  %@",commentAttrTextt,commetAttrTextTwoo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range11 = [combinedTextt rangeOfString:commentAttrTextt];
+                    NSRange range22 = [combinedTextt rangeOfString:commetAttrTextTwoo];
+                    
+                    NSMutableAttributedString *attributedTextt = [[NSMutableAttributedString alloc] initWithString:combinedTextt];
+                    
+                    
+                    NSDictionary *attrDictt = @{
+                                                NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeee],
+                                                NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTextt setAttributes:attrDictt  range:range22];
+                    
+                    [attributedTextt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizee]}
+                                             range:range11];
+                    
+                    
+                    cell.commentAttributedLabelTwo.attributedText = attributedTextt;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSString *stringTimerrr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:2];
+                    
+                    
+                    
+                    
+                    
+                    
+                    NSCharacterSet *delimitersss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitStringgg = [stringTimerrr componentsSeparatedByCharactersInSet:delimitersss];
+                    
+                    
+                    NSString *yStringgg = [splitStringgg objectAtIndex:1];
+                    
+                    NSString* localTimeee;
+                    
+                    if ([yStringgg containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yStringgg componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        localTimeee = [tr formattedAsTimeAgoThree];
+                        //   NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTimedfsdfsdfsdfsd:%@", localTimeee);
+                        
+                    }
+                    
+                    
+                    NSString * commetAttrTextTwooo = localTimeee;
+                    
+                    //  NSString * commetAttrTextTwo = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:0];
+                    
+                    
+                    cell.commentAttributedCellThird.text =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"Comment"] objectAtIndex:2];
+                    
+                    
+                    NSString * commentAttrTexttt = [[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"DisplayName"] objectAtIndex:2];
+                    
+                    NSString * combinedTexttt = [NSString stringWithFormat:@"%@  %@",commentAttrTexttt,commetAttrTextTwooo];
+                    
+                    
+                    
+                    CGFloat boldTextFontSizeeeee = 12.0f;
+                    
+                    CGFloat boldTextFontSizeeeeeeeeeee = 10.0f;
+                    
+                    //  cell.commentAttributedLabel.text = combinedText;
+                    
+                    NSRange range111 = [combinedTexttt rangeOfString:commentAttrTexttt];
+                    NSRange range222 = [combinedTexttt rangeOfString:commetAttrTextTwooo];
+                    
+                    NSMutableAttributedString *attributedTexttt = [[NSMutableAttributedString alloc] initWithString:combinedTexttt];
+                    
+                    
+                    NSDictionary *attrDicttt = @{
+                                                 NSFontAttributeName : [UIFont systemFontOfSize:boldTextFontSizeeeeeeeeeee],
+                                                 NSForegroundColorAttributeName : [UIColor darkGrayColor]
+                                                 };
+                    
+                    
+                    //  [attributedText addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:range2];
+                    [attributedTexttt setAttributes:attrDicttt  range:range222];
+                    
+                    [attributedTexttt setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:boldTextFontSizeeeee]}
+                                              range:range111];
+                    
+                    
+                    cell.commentAttributedLabelThree.attributedText = attributedTexttt;
+                    
+                    
+                    
+                    
+                    
+                    [cell.showMoreComments setHidden:NO];
+                    [cell.totalComments setHidden:YES];
+                    
+                }
+                
+                // Post is Live Or Done
+                
+                if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0 ) {
+                    
+                    
+                    
+                    // [cell.timerCell setHidden:NO];
+                    // [cell.remainingLabel setHidden:NO];
+                    
+                    
+                    NSString *stringTimer =[[globalArray valueForKey:@"EndDate"] objectAtIndex:indexPath.section];
+                    
+                    
+                    NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
+                    NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
+                    
+                    NSString *xString = [splitString objectAtIndex:0];
+                    NSString *yString = [splitString objectAtIndex:1];
+                    
+                    
+                    
+                    if ([yString containsString:@"-"]) {
+                        
+                        NSArray *arrrr = [yString componentsSeparatedByString:@"-"];
+                        
+                        
+                        NSString* testOne = [arrrr objectAtIndex:0];
+                        
+                        
+                        NSString* beforeConvert =[arrrr objectAtIndex:1];
+                        
+                        NSString*mystr=[beforeConvert substringToIndex:2];
+                        
+                        NSInteger multipliedVal = [mystr integerValue] * 3600000;
+                        
+                        NSString * finalVal = [NSString stringWithFormat:@"%ld",[testOne integerValue] - multipliedVal];
+                        
+                        
+                        NSDate *tr = [NSDate dateWithTimeIntervalSince1970:[finalVal integerValue]/1000.0];
+                        
+                        
+                        
+                        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+                        
+                        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+                        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        
+                        
+                        NSString* localTime = [dateFormatter stringFromDate:tr];
+                        
+                        NSLog(@"localTime:%@", localTime);
+                        
+                        NSDateFormatter *dateFormatterCurrent=[[NSDateFormatter alloc] init];
+                        [dateFormatterCurrent setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+                        // or @"yyyy-MM-dd hh:mm:ss a" if you prefer the time with AM/PM
+                        
+                        
+                        
+                        NSString* localCurrentTime = [dateFormatterCurrent stringFromDate:[NSDate date]];
+                        //   NSLog(@"current time :%@",localCurrentTime);
+                        
+                        NSTimeInterval diff = [tr timeIntervalSinceDate:[NSDate date]];
+                        
+                        //  NSLog(@"difffereeenceee %f",diff*1000 );
+                        
+                        valText = diff*1000;
+                        
+                        
+                        float seconds = valText / 1000.0;
+                        float minutes = seconds / 60.0;
+                        
+                        
+                        testVa = minutes/1440;
+                        
+                        
+                        
+                        //                    float percentVal = testVa * 100;
+                        //
+                        //                    float percentFinalVal = percentVal/100
+                        //
+                        
+                        if ([[self calculateTimer] isEqualToString:@""]) {
+                            [cell.timerCell setHidden:YES];
+                            [cell.progresssView setHidden:YES];
+                        }
+                        
+                        else{
+                            
+                            cell.timerCell.text =  [self calculateTimer];
+                            
+                            
+                            
+                        }
+                        
+                        //
+                        //                    if (valText >0 && valText <86400000 ) {
+                        ////                        _timerCalc = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(runScheduledTask:) userInfo:nil repeats:NO];
+                        //
+                        //
+                        //                        NSDate *date = [NSDate dateWithTimeIntervalSince1970:(valText / 1000.0)];
+                        //
+                        //                        NSString* localTimeee =[NSString stringWithFormat:@"%@",date];
+                        //
+                        //                        NSArray *seperateVal =  [localTimeee componentsSeparatedByString:@" "];
+                        //
+                        //                        NSArray *timeSplit = [[seperateVal objectAtIndex:1] componentsSeparatedByString:@":"];
+                        //
+                        //
+                        //                      NSString*  exactTimeee = [NSString stringWithFormat:@"%@h. %@m. %@s.",[timeSplit objectAtIndex:0],[timeSplit objectAtIndex:1],[timeSplit objectAtIndex:2]];
+                        //
+                        //                        cell.timerCell.text  = exactTimeee;
+                        //
+                        //                        NSLog(@"timerrrr : %@",cell.timerCell.text);
+                        //
+                        //
+                        //
+                        //                    }
+                        //
+                        //
+                        //
+                        
+                    }
+                    
+                    
+                    
+                    /*******/
+                    [cell.fourVersusFirstSecondMainView setHidden:NO];
+                    [cell.fourVersusMainView setHidden:NO];
+                    [cell.fourVersusFirstSecondButtonView setHidden:YES];
+                    [cell.fourVersusButtonView setHidden:YES];
+                    [cell.fourVersusZeroComment setHidden:NO];
+                    
+                    
+                    [cell.fourVersusFirstSecondNotDoneView setHidden:NO];
+                    [cell.fourVersusNotDoneView setHidden:NO];
+                    
+                    
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = YES;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = YES;
+                    
+                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    cell.fourVersusFirstSecondFinalLeftButton.userInteractionEnabled = YES;
+                    cell.fourVersusFirstSecondFinalRightButton.userInteractionEnabled = YES;
+                    
+//                    [cell.fourVersusFirstSecondFinalLeftButton setBackgroundColor:[UIColor whiteColor]];
+//                    [cell.fourVersusFirstSecondFinalRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    cell.fourVersusLeftButton.userInteractionEnabled = YES;
+                    cell.fourVersusRightButton.userInteractionEnabled = YES;
+                    
+                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    cell.fourVersusFinalLeftButton.userInteractionEnabled = YES;
+                    cell.fourVersusFinalRightButton.userInteractionEnabled = YES;
+                    
+//                    [cell.fourVersusFinalLeftButton setBackgroundColor:[UIColor whiteColor]];
+//                    [cell.fourVersusFinalRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    
+                    [cell.reheyVoteButton setHidden:YES];
+                    
+                    
+                    //Has Voted Or not Button View
+                    
+                    
+                    if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                        
+                        if ([voteResultAraayFourVersus containsObject:[globalArray objectAtIndex:indexPath.section]]) {
+                           
+                            
+                            
+                            if ([voteResultValFourVersus isEqualToString:@"leftvoted"] || [voteResultValFourVersus isEqualToString:@"rightvoted"] || [voteResultValFourVersus isEqualToString:@"downleftvoted"] || [voteResultValFourVersus isEqualToString:@"downrightvoted"]) {
+                                
+                                
+                                
+                                
+                                [cell.progresssView setHidden:NO];
+                                [cell.timerCell setHidden:NO];
+                                [cell.remainingLabel setHidden:NO];
+                                
+                                cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                          green:0.0f/255.0f
+                                                                                           blue:20.0f/255.0f
+                                                                                          alpha:0.7f];
+                                cell.circularProgress.max = 1.0f;
+                                cell.circularProgress.fillRadiusPx = 25;
+                                cell.circularProgress.step = 0.1f;
+                                cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                                cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                cell.circularProgress.outlineWidth = 1;
+                                cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                                cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                                
+                                
+                                [[HKCircularProgressView appearance] setAnimationDuration:5];
+                                
+                                cell.circularProgress.alwaysDrawOutline = YES;
+                                
+                                
+                                cell.insideProgress.fillRadius = 1;
+                                cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                                cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                                [cell.circularProgress setCurrent:testVa
+                                                         animated:YES];
+                                [cell.insideProgress setCurrent:1.0f
+                                                       animated:YES];
+                                
+                                
+                                
+                                NSString*uVoted;
+                                
+                                // [cell.yesNoMainView setHidden:YES];
+                                
+                                if ([voteResultValThreeVersus isEqualToString:@"leftvoted"]) {
+                                    
+                                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                              green:200.0f/255.0f
+                                                                                                               blue:200.0f/255.0f
+                                                                                                              alpha:1.0f]];
+                                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                     [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                else if([voteResultValThreeVersus isEqualToString:@"rightvoted"] ) {
+                                    
+                                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                              green:200.0f/255.0f
+                                                                                                               blue:200.0f/255.0f
+                                                                                                              alpha:1.0f]];
+                                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                
+                                
+                                else if([voteResultValThreeVersus isEqualToString:@"downleftvoted"] ) {
+                                    
+                                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                  green:200.0f/255.0f
+                                                                                                   blue:200.0f/255.0f
+                                                                                                  alpha:1.0f]];
+                                    [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                else if([voteResultValThreeVersus isEqualToString:@"downrightvoted"] ) {
+                                    
+                                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                                    
+                                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                                    [cell.fourVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                   green:200.0f/255.0f
+                                                                                                    blue:200.0f/255.0f
+                                                                                                   alpha:1.0f]];
+                                    
+                                    
+                                    
+                                }
+                                
+                                
+                                
+                                cell.youHaveVotedLabel.text =uVoted;
+                            }
+                            
+                            
+                            
+                            else{
+                                
+                                
+                                
+                                [cell.fourVersusMainView setHidden:NO];
+                                [cell.fourVersusButtonView setHidden:YES];
+                                [cell.fourVersusNotDoneView setHidden:NO];
+                                [cell.fourVersusZeroComment setHidden:NO];
+                                
+                                [cell.fourVersusFirstSecondMainView setHidden:NO];
+                                [cell.fourVersusFirstSecondButtonView setHidden:YES];
+                                [cell.fourVersusFirstSecondNotDoneView setHidden:NO];
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    else if ([[[globalArray valueForKey:@"hasVoted"] objectAtIndex:indexPath.section] integerValue]  == 1 ) {
+                        // [cell.yesNoMainView setHidden:YES];
+                        
+                        [cell.progresssView setHidden:NO];
+                        [cell.timerCell setHidden:NO];
+                        [cell.remainingLabel setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                        
+                        
+                        NSString*uVoted;
+                        
+                        
+                        
+                        if ([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 0) {
+                            
+                            cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                     green:200.0f/255.0f
+                                                                                                      blue:200.0f/255.0f
+                                                                                                     alpha:1.0f]];
+                            [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                            
+                            
+                            
+                            
+                            
+                        }
+                        
+                        else if([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                            
+                            cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                                      green:200.0f/255.0f
+                                                                                                       blue:200.0f/255.0f
+                                                                                                      alpha:1.0f]];
+                            [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                            
+                        }
+                        
+                        
+                        
+                        else if([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 2) {
+                            
+                            
+                            
+                            cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                          green:200.0f/255.0f
+                                                                                           blue:200.0f/255.0f
+                                                                                          alpha:1.0f]];
+                            [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                            
+                            
+                            
+                            
+                            
+                            
+                        }
+                        
+                        
+                        
+                        else if([[[globalArray valueForKey:@"VotedFor"] objectAtIndex:indexPath.section] integerValue] == 3) {
+                            
+                            
+                            
+                            cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                            cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                            cell.fourVersusRightButton.userInteractionEnabled = NO;
+                            
+                            [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                            [cell.fourVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                           green:200.0f/255.0f
+                                                                                            blue:200.0f/255.0f
+                                                                                           alpha:1.0f]];
+                            
+                            
+                            
+                            
+                            
+                            
+                        }
+
+                        
+                    }
+                    
+                    
+                }
+                
+                
+                
+                else if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 1) {
+                    [cell.timerCell setHidden:YES];
+                    [cell.remainingLabel setHidden:YES];
+                    
+                    [cell.fourVersusMainView setHidden:NO];
+                    [cell.fourVersusButtonView setHidden:NO];
+                    
+                    [cell.fourVersusZeroComment setHidden:YES];
+                    [cell.fourVersusNotDoneView setHidden:YES];
+                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    [cell.fourVersusFirstSecondMainView setHidden:NO];
+                    [cell.fourVersusFirstSecondButtonView setHidden:NO];
+                    [cell.fourVersusFirstSecondNotDoneView setHidden:YES];
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    [cell.reheyVoteButton setHidden:NO];
+                    
+                }
+                
+                
+                
+                //Button Caption (YES/NO)
+                [cell.fourVersusFirstSecondLeftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.fourVersusFirstSecondRightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.fourVersusLeftButton setTitle:[[globalArray valueForKey:@"Caption3"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                  [cell.fourVersusRightButton setTitle:[[globalArray valueForKey:@"Caption4"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                
+                [cell.fourVersusFirstSecondFinalLeftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                [cell.fourVersusFirstSecondFinalRightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                
+                [cell.fourVersusFinalLeftButton setTitle:[[globalArray valueForKey:@"Caption3"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                  [cell.fourVersusFinalRightButton setTitle:[[globalArray valueForKey:@"Caption4"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
+                
+                
+                //   return cell;
+                
+                
+                
+                
             }
-            
-            
-            
-            else if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 1) {
-               [cell.timerCell setHidden:YES];
-                [cell.remainingLabel setHidden:YES];
-                
-                [cell.yesNoMainView setHidden:NO];
-                [cell.yesNoButtonView setHidden:NO];
-                [cell.yesNoNotDoneButtonView setHidden:YES];
-                cell.leftButton.userInteractionEnabled = NO;
-                cell.rightButton.userInteractionEnabled = NO;
-                
-                
-                [cell.reheyVoteButton setHidden:NO];
-                
-            }
-            
-            
-            
-            //Button Caption (YES/NO)
-            [cell.leftButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
-            
-            [cell.rightButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
-            
-            [cell.leftResultButton setTitle:[[globalArray valueForKey:@"Caption1"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
-            
-            [cell.rightResultButton setTitle:[[globalArray valueForKey:@"Caption2"] objectAtIndex:indexPath.section] forState: UIControlStateNormal];
-            
-            //   return cell;
-            
+    
         }
         
         
@@ -2956,58 +7389,201 @@ timerLoad = @"";
             NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
             
             
+            CGRect buttonFrameNew = CGRectMake(3, cell.voteLabelLeft.frame.origin.y, resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+            buttonFrameNew.size = CGSizeMake(resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+            cell.leftResultButton.frame = buttonFrameNew;
+            
+            
+            CGRect buttonFrameNew2 = CGRectMake(3, cell.votesLabelRight.frame.origin.y, resultButtonWidth, cell.votesLabelRight.frame.size.height);
+            buttonFrameNew2.size = CGSizeMake(resultButtonWidth, cell.votesLabelRight.frame.size.height);
+            cell.rightResultButton.frame = buttonFrameNew2;
+            
+            
+            
             if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]) {
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
                 
                 
                 
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
                 
-                [cell.leftWinnerImage setHidden:NO];
-                [cell.rightWinnerImage setHidden:YES];
+                if (screenWidthios == 320) {
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                    
+                }
+                
+                else if (screenWidthios == 375){
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                else{
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+  
+                
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                
+                
+                
+                
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                
+                
+                
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+                
+//                [cell.leftWinnerImage setHidden:NO];
+//                [cell.rightWinnerImage setHidden:YES];
                 
             }
             
             else if([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] == [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
                 
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
                 
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
                 
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                
+//                
+//                
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
                 
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                [cell.leftWinnerImage setHidden:YES];
+//                [cell.rightWinnerImage setHidden:YES];
                 
-                
-                
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:YES];
-                
-//                [cell.leftTickImage setHidden:YES];
-//                [cell.rightTickImage setHidden:YES];
+
             }
             
             else{
                 
                 
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
                 
                 
                 
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
                 
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:NO];
+                if (screenWidthios == 320) {
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                    
+                }
+                
+                else if (screenWidthios == 375){
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                else{
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                
+                
+//
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+                
+//                [cell.leftWinnerImage setHidden:YES];
+//                [cell.rightWinnerImage setHidden:NO];
                 
                 
 //                [cell.leftTickImage setHidden:YES];
@@ -4382,63 +8958,199 @@ timerLoad = @"";
             NSString*vote2 = [NSString stringWithFormat:@"%@ Votes (%@%@)",[[globalArray valueForKey:@"VoteCount2"] objectAtIndex:indexPath.section],[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section],percent];
             
             
+            CGRect buttonFrameNew = CGRectMake(3, cell.voteLabelLeft.frame.origin.y, resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+            buttonFrameNew.size = CGSizeMake(resultButtonWidth, cell.voteLabelLeft.frame.size.height);
+            cell.leftResultButton.frame = buttonFrameNew;
+            
+            
+            CGRect buttonFrameNew2 = CGRectMake(3, cell.votesLabelRight.frame.origin.y, resultButtonWidth, cell.votesLabelRight.frame.size.height);
+            buttonFrameNew2.size = CGSizeMake(resultButtonWidth, cell.votesLabelRight.frame.size.height);
+            cell.rightResultButton.frame = buttonFrameNew2;
+            
             
             if ([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] > [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]) {
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
                 
                 
                 
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+                if (screenWidthios == 320) {
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                    
+                }
                 
-                [cell.leftWinnerImage setHidden:NO];
-                [cell.rightWinnerImage setHidden:YES];
+                else if (screenWidthios == 375){
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                else{
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                
+                
+                
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+                
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                
+                
+                
+                
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+                
+//                [cell.leftWinnerImage setHidden:NO];
+//                [cell.rightWinnerImage setHidden:YES];
                 
             }
             
             else if([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] == [[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue]){
                 
                 
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
                 
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
                 
                 
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                
+//                
+//                
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
                 
+//                [cell.leftWinnerImage setHidden:YES];
+//                [cell.rightWinnerImage setHidden:YES];
                 
-                
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
-                
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:YES];
-                
-                //                [cell.leftTickImage setHidden:YES];
-                //                [cell.rightTickImage setHidden:YES];
+               
             }
             
             else{
                 
                 
-                cell.voteLabelLeft.textColor = [UIColor whiteColor];
-                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+                if (screenWidthios == 320) {
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 215, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                    
+                }
+                
+                else if (screenWidthios == 375){
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 270, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                else{
+                    
+                    
+                    
+                    CGRect buttonFrame = cell.leftResultButton.frame;
+                    buttonFrame.size = CGSizeMake([[[globalArray valueForKey:@"Vote1Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.leftResultButton.frame = buttonFrame;
+                    
+                    
+                    
+                    
+                    CGRect buttonFrame2 = cell.rightResultButton.frame;
+                    buttonFrame2.size = CGSizeMake([[[globalArray valueForKey:@"Vote2Result"] objectAtIndex:indexPath.section] integerValue] + 309, 17);
+                    cell.rightResultButton.frame = buttonFrame2;
+                    
+                    
+                }
+                
+                cell.leftResultButton.backgroundColor =  [UIColor colorWithRed:163/255.0f green:188/255.0f blue:201/255.0f alpha:1.0f];
+                
+                cell.rightResultButton.backgroundColor = [UIColor colorWithRed:95/255.0f green:124/255.0f blue:138/255.0f alpha:1.0f];
+//
                 
                 
+//                cell.voteLabelLeft.textColor = [UIColor whiteColor];
+//                cell.voteLabelLeft.backgroundColor = [UIColor colorWithRed:218/255.0f green:34/255.0f blue:30/255.0f alpha:1.0f];
+//                
+//                
+//                
+//                cell.votesLabelRight.textColor = [UIColor whiteColor];
+//                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
                 
-                cell.votesLabelRight.textColor = [UIColor whiteColor];
-                cell.votesLabelRight.backgroundColor = [UIColor colorWithRed:55/255.0f green:194/255.0f blue:4/255.0f alpha:1.0f];
+//                [cell.leftWinnerImage setHidden:YES];
+//                [cell.rightWinnerImage setHidden:NO];
                 
-                [cell.leftWinnerImage setHidden:YES];
-                [cell.rightWinnerImage setHidden:NO];
-                
-                
-                //                [cell.leftTickImage setHidden:YES];
-                //                [cell.rightTickImage setHidden:NO];
+           
             }
             
             cell.voteLabelLeft.text = vote1;
@@ -4795,16 +9507,11 @@ timerLoad = @"";
                 
                 
                 
-                
-                
-                
+               
                 NSString *stringTimer =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:0];
                 
                 
-                
-                
-                
-                
+               
                 NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"()"];
                 NSArray *splitString = [stringTimer componentsSeparatedByCharactersInSet:delimiters];
                 
@@ -4887,16 +9594,10 @@ timerLoad = @"";
                 
                 cell.commentAttributedLabel.attributedText = attributedText;
                 
-                
-                
-                
+        
                 
                 NSString *stringTimerr =[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"CreatedOn"] objectAtIndex:1];
-                
-                
-                
-                
-                
+             
                 
                 NSCharacterSet *delimiterss = [NSCharacterSet characterSetWithCharactersInString:@"()"];
                 NSArray *splitStringg = [stringTimerr componentsSeparatedByCharactersInSet:delimiterss];
@@ -5734,6 +10435,16 @@ timerLoad = @"";
     }
     }
     
+    
+//    cell.layer.shouldRasterize = YES;
+//    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+//    
+//    
+    [cell setNeedsUpdateConstraints];
+    [cell updateConstraintsIfNeeded];
+    [cell layoutSubviews];
+    [cell layoutIfNeeded];
+    
     return cell;
     
 }
@@ -6150,11 +10861,17 @@ timerLoad = @"";
               
                 UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 14)];
                 
-                UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 60)];
+                UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 65, 60)];
                 button.tag = section;
                 [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
                 
                 button.backgroundColor = [UIColor clearColor];
+                
+                
+              
+                
+                
+            
                 
                 // Doing the Decoration Part
                 view.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
@@ -6276,7 +10993,7 @@ timerLoad = @"";
                 
                 UIImageView *labelImage = [[UIImageView alloc] initWithFrame:CGRectMake(5, 6, 40, 40)];
                 
-                [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"]];
+                [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
                 
                 labelImage.layer.cornerRadius = labelImage.frame.size.height /2;
                 labelImage.layer.masksToBounds = YES;
@@ -6284,10 +11001,67 @@ timerLoad = @"";
                 
                 
                 
+                
+                UITapGestureRecognizer *singleFingerTap =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(tapGestureProfileView:)];
+                [button addGestureRecognizer:singleFingerTap];
+                
+                
+                
+                
+                /* Information Button */
+                CGSize textSize = [label intrinsicContentSize];
+                
+                UIButton *buttonInfo = [[UIButton alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +15, label.frame.origin.y, 20, 20)];
+                buttonInfo.tag = section;
+                [buttonInfo addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImage = [UIImage imageNamed:@"info-icon-32.png"];
+                buttonInfo.backgroundColor = [UIColor clearColor];
+                [buttonInfo setBackgroundImage:buttonImage forState:UIControlStateNormal];
+
+                
+              UILabel *labelSubInfo = [[UILabel alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +25 + buttonInfo.frame.size.width, label.frame.origin.y, 150, 20)];
+                [labelSubInfo setFont:[UIFont boldSystemFontOfSize:10]];
+                
+                [labelSubInfo setText:@"89% are with you"];
+                
+                [labelSubInfo setTextColor:[UIColor darkGrayColor]];
+
+                UITapGestureRecognizer *singleFingerTapInfo =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressInfo:)];
+                [buttonInfo addGestureRecognizer:singleFingerTapInfo];
+                
+                
+                
+                
+                UIButton *buttonChat = [[UIButton alloc] initWithFrame:CGRectMake(buttonInfo.frame.origin.x  +15, label.frame.origin.y, 20, 20)];
+                buttonChat.tag = section;
+                [buttonChat addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImageChat = [UIImage imageNamed:@"20151112_5643eb977c5cf.png"];
+                buttonChat.backgroundColor = [UIColor clearColor];
+                [buttonChat setBackgroundImage:buttonImageChat forState:UIControlStateNormal];
+                
+                UITapGestureRecognizer *singleFingerTapInfoChat =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressChat:)];
+                [buttonChat addGestureRecognizer:singleFingerTapInfoChat];
+                
+                
+
+                
+                
+                
+                
+                
                 [view addSubview:labelImage];
                 
-                
+                 [view addSubview:buttonInfo];
+                [view addSubview:buttonChat];
                 [view addSubview:label];
+                
+              //  [view addSubview:labelSubInfo];
                 
                 
                 [view addSubview:button];
@@ -6303,11 +11077,13 @@ timerLoad = @"";
             
             UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
             
-            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 60)];
+            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 65, 60)];
             button.tag = section;
             [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
             
             button.backgroundColor = [UIColor clearColor];
+                
+          
             
             // Doing the Decoration Part
             view.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
@@ -6323,6 +11099,7 @@ timerLoad = @"";
             
              label = [[UILabel alloc] initWithFrame:CGRectMake(58, 14, 200, 20)];
             [label setFont:[UIFont boldSystemFontOfSize:15]];
+               
             NSString *string =[[globalArray valueForKey:@"UserDisplayName"] objectAtIndex:section];
             
        
@@ -6429,20 +11206,70 @@ timerLoad = @"";
             
             UIImageView *labelImage = [[UIImageView alloc] initWithFrame:CGRectMake(5, 12, 40, 40)];
             
-            [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"]];
+            [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
             
             labelImage.layer.cornerRadius = labelImage.frame.size.height /2;
             labelImage.layer.masksToBounds = YES;
             labelImage.layer.borderWidth = 0;
             
-            
+                UITapGestureRecognizer *singleFingerTap =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(tapGestureProfileView:)];
+                [button addGestureRecognizer:singleFingerTap];
+                
+                
+                /* Information Button */
+                
+                  CGSize textSize = [label intrinsicContentSize];
+                
+                  UIButton *buttonInfo = [[UIButton alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +15, label.frame.origin.y, 20, 20)];
+                buttonInfo.tag = section;
+                [buttonInfo addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImage = [UIImage imageNamed:@"info-icon-32.png"];
+                buttonInfo.backgroundColor = [UIColor clearColor];
+                [buttonInfo setBackgroundImage:buttonImage forState:UIControlStateNormal];
+                
+                UILabel *labelSubInfo = [[UILabel alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +25 + buttonInfo.frame.size.width, label.frame.origin.y, 150, 20)];
+                [labelSubInfo setFont:[UIFont boldSystemFontOfSize:10]];
+                
+                [labelSubInfo setText:@"89% are with you"];
+                
+                [labelSubInfo setTextColor:[UIColor darkGrayColor]];
+
+                UITapGestureRecognizer *singleFingerTapInfo =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressInfo:)];
+                [buttonInfo addGestureRecognizer:singleFingerTapInfo];
+                
+                
+                
+                
+                UIButton *buttonChat = [[UIButton alloc] initWithFrame:CGRectMake(buttonInfo.frame.origin.x  +15, label.frame.origin.y, 20, 20)];
+                buttonChat.tag = section;
+                [buttonChat addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImageChat = [UIImage imageNamed:@"20151112_5643eb977c5cf.png"];
+                buttonChat.backgroundColor = [UIColor clearColor];
+                [buttonChat setBackgroundImage:buttonImageChat forState:UIControlStateNormal];
+                
+                UITapGestureRecognizer *singleFingerTapInfoChat =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressChat:)];
+                [buttonChat addGestureRecognizer:singleFingerTapInfoChat];
+                
+                
+                
+                
+                
            
             [view addSubview:labelImage];
             
-            
+             [view addSubview:buttonInfo];
+                
+                [view addSubview:buttonChat];
             [view addSubview:label];
+            //    [view addSubview:labelSubInfo];
             
-            
+           
             [view addSubview:button];
   
             
@@ -6461,11 +11288,15 @@ timerLoad = @"";
             
                UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 14)];
                 
-                UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 60)];
+                UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 65, 60)];
                 button.tag = section;
                 [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
                 
                 button.backgroundColor = [UIColor clearColor];
+                
+             
+                
+                
                 
                 // Doing the Decoration Part
                 view.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
@@ -6584,6 +11415,7 @@ timerLoad = @"";
                     
                 }
                 
+
                 
                 
                 UILabel *labelSub = [[UILabel alloc] initWithFrame:CGRectMake(58, 28, 300, 18)];
@@ -6603,25 +11435,69 @@ timerLoad = @"";
                 
               UIImageView *labelImage = [[UIImageView alloc] initWithFrame:CGRectMake(5, 6, 40, 40)];
                 
-                [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"]];
+                [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
                 
                 labelImage.layer.cornerRadius = labelImage.frame.size.height /2;
                 labelImage.layer.masksToBounds = YES;
                 labelImage.layer.borderWidth = 0;
+                UITapGestureRecognizer *singleFingerTap =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(tapGestureProfileView:)];
+                [button addGestureRecognizer:singleFingerTap];
                 
- 
+                
+                /* Information Button */
+                CGSize textSize = [label intrinsicContentSize];
+                
+                  UIButton *buttonInfo = [[UIButton alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +15, label.frame.origin.y, 20, 20)];
+                buttonInfo.tag = section;
+                [buttonInfo addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImage = [UIImage imageNamed:@"info-icon-32.png"];
+                buttonInfo.backgroundColor = [UIColor clearColor];
+                [buttonInfo setBackgroundImage:buttonImage forState:UIControlStateNormal];
+                
+
+                UILabel *labelSubInfo = [[UILabel alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +25 + buttonInfo.frame.size.width, label.frame.origin.y, 150, 20)];
+                [labelSubInfo setFont:[UIFont boldSystemFontOfSize:10]];
+                
+                [labelSubInfo setText:@"89% are with you"];
+                
+                [labelSubInfo setTextColor:[UIColor darkGrayColor]];
+                
+                UITapGestureRecognizer *singleFingerTapInfo =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressInfo:)];
+                [buttonInfo addGestureRecognizer:singleFingerTapInfo];
+                
+                
+                
+                UIButton *buttonChat = [[UIButton alloc] initWithFrame:CGRectMake(buttonInfo.frame.origin.x  +15, label.frame.origin.y, 20, 20)];
+                buttonChat.tag = section;
+                [buttonChat addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImageChat = [UIImage imageNamed:@"20151112_5643eb977c5cf.png"];
+                buttonChat.backgroundColor = [UIColor clearColor];
+                [buttonChat setBackgroundImage:buttonImageChat forState:UIControlStateNormal];
+                
+                UITapGestureRecognizer *singleFingerTapInfoChat =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressChat:)];
+                [buttonChat addGestureRecognizer:singleFingerTapInfoChat];
+                
+                
+                
+                
+                
+                
+                
                 [view addSubview:labelImage];
-                
-                
                 [view addSubview:label];
-                
+                [view addSubview:buttonInfo];
+              //  [view addSubview:labelSubInfo];
+                [view addSubview:buttonChat];
                 [view addSubview:labelSub];
                 [view addSubview:button];
                 
-                
-                
-                
-                
+     
                 [view setBackgroundColor:[UIColor whiteColor]]; //your background color...
                 
                 return view;
@@ -6634,11 +11510,17 @@ timerLoad = @"";
       
             UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
             
-            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 60)];
+            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 65, 60)];
             button.tag = section;
             [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
             
             button.backgroundColor = [UIColor clearColor];
+                
+        
+                
+                
+                
+                
             
             // Doing the Decoration Part
             view.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
@@ -6729,8 +11611,6 @@ timerLoad = @"";
                     valText = diff*1000;
                     
 
-                
-                
                     if([[self calculateTimer] isEqualToString:@""]){
                         
                          [Timer setText:@""];
@@ -6750,8 +11630,7 @@ timerLoad = @"";
             }
             
             }
-            
-            
+   
             
             UILabel *labelSub = [[UILabel alloc] initWithFrame:CGRectMake(58, 32, 300, 20)];
             [labelSub setFont:[UIFont boldSystemFontOfSize:12]];
@@ -6770,25 +11649,64 @@ timerLoad = @"";
             
             UIImageView *labelImage = [[UIImageView alloc] initWithFrame:CGRectMake(5, 12, 40, 40)];
             
-            [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"]];
+            [labelImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"imagesPerson.jpeg"] options:SDWebImageRefreshCached];
             
             labelImage.layer.cornerRadius = labelImage.frame.size.height /2;
             labelImage.layer.masksToBounds = YES;
             labelImage.layer.borderWidth = 0;
             
+                UITapGestureRecognizer *singleFingerTap =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(tapGestureProfileView:)];
+                [button addGestureRecognizer:singleFingerTap];
             
             
+                /* Information Button */
+                CGSize textSize = [label intrinsicContentSize];
+                
+                  UIButton *buttonInfo = [[UIButton alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width + 15, label.frame.origin.y, 20, 20)];
+                buttonInfo.tag = section;
+                [buttonInfo addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImage = [UIImage imageNamed:@"info-icon-32.png"];
+                buttonInfo.backgroundColor = [UIColor clearColor];
+                [buttonInfo setBackgroundImage:buttonImage forState:UIControlStateNormal];
+                
+
+                
+                UILabel *labelSubInfo = [[UILabel alloc] initWithFrame:CGRectMake(label.frame.origin.x +textSize.width +25 + buttonInfo.frame.size.width, label.frame.origin.y, 150, 20)];
+                [labelSubInfo setFont:[UIFont boldSystemFontOfSize:10]];
+                
+                [labelSubInfo setText:@"89% are with you"];
+                
+                [labelSubInfo setTextColor:[UIColor darkGrayColor]];
+                
+                UITapGestureRecognizer *singleFingerTapInfo =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressInfo:)];
+                [buttonInfo addGestureRecognizer:singleFingerTapInfo];
             
-            
-            
-            
-           
+                UIButton *buttonChat = [[UIButton alloc] initWithFrame:CGRectMake(buttonInfo.frame.origin.x  +15, label.frame.origin.y, 20, 20)];
+                buttonChat.tag = section;
+                [buttonChat addTarget:self action:@selector(buttonActionInfo:) forControlEvents:UIControlEventTouchUpInside];
+                UIImage *buttonImageChat = [UIImage imageNamed:@"20151112_5643eb977c5cf.png"];
+                buttonChat.backgroundColor = [UIColor clearColor];
+                [buttonChat setBackgroundImage:buttonImageChat forState:UIControlStateNormal];
+                
+                UITapGestureRecognizer *singleFingerTapInfoChat =
+                [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                        action:@selector(longPressChat:)];
+                [buttonChat addGestureRecognizer:singleFingerTapInfoChat];
+                
+                
+                
+                
             
             [view addSubview:labelImage];
-            
-            
+            [view addSubview:buttonInfo];
+           // [view addSubview:labelSubInfo];
+            [view addSubview:buttonChat];
             [view addSubview:label];
-            
+                
             [view addSubview:labelSub];
             [view addSubview:button];
             
@@ -6811,19 +11729,22 @@ timerLoad = @"";
 }
 
 
--(void)buttonAction:(id)sender{
-    
-    
 
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+
+
+- (void)tapGestureProfileView:(UITapGestureRecognizer *)gestureRecognizer
+{
+    //do you right swipe stuff here. Something usually using theindexPath that you get that way
+    CGPoint location = [gestureRecognizer locationInView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:location];
+    
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
-    if (indexPath != nil)
+    if (indexPath != nil || indexPath== nil)
     {
         
-           commentViewVal = @"val";
+        commentViewVal = @"val";
         
-          NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+        NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
         
         BOOL interNetCheck=[WebServiceUrl InternetCheck];
         if (interNetCheck==YES ) {
@@ -6837,9 +11758,24 @@ timerLoad = @"";
             
             
             
-            NSDictionary *jsonDictionary =@{
-                                            @"contactToken":[[globalArray valueForKey:@"UserIdf"] objectAtIndex:indexPath.section],
-                                            @"isWeb":@"false"                                           };
+            NSDictionary *jsonDictionary;
+            
+            if (indexPath !=nil) {
+                
+                jsonDictionary=@{
+                                 @"contactToken":[[globalArray valueForKey:@"UserIdf"] objectAtIndex:indexPath.section],
+                                 @"isWeb":@"false"                                           };
+                
+            }
+            
+            
+            else{
+                
+                jsonDictionary=@{
+                                 @"contactToken":[[globalArray valueForKey:@"UserIdf"] objectAtIndex:0],
+                                 @"isWeb":@"false"                                           };
+            }
+            
             
             
             
@@ -6859,87 +11795,104 @@ timerLoad = @"";
             NSLog(@"JSON OUTPUT: %@",JSONString);
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/viewprofileExternal_N4"]];
-            
-            
-            
-            [requestPost setHTTPMethod:@"POST"];
-            
-            
-            
-            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
-            
-            
-            
-            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
-            
-            
-            
-            [requestPost setHTTPBody: requestData];
-            
-            //  [requestPost addValue:@"hhhffftttuuu" forHTTPHeaderField:@"Value"];
-            
-            
-            
-            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
-            
-            // NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:requestPost delegate:self];
-            
-            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                if (error) {
-                    //do something with error
-                } else {
-                    
-                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                    //            NSString *responseText = [[NSString alloc] initWithData:data encoding: NSASCIIStringEncoding];
-                    //            NSString *newLineStr = @"\n";
-                    //            responseText = [responseText stringByReplacingOccurrencesOfString:@"<br />" withString:newLineStr];
-                    //
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                
+                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/viewprofileExternal_N4"]];
+                
+                
+                
+                [requestPost setHTTPMethod:@"POST"];
+                
+                
+                
+                [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                
+                
+                
+                NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                
+                
+                
+                [requestPost setHTTPBody: requestData];
+                
+                //  [requestPost addValue:@"hhhffftttuuu" forHTTPHeaderField:@"Value"];
+                
+                
+                
+                [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                
+                // NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:requestPost delegate:self];
+                
+                [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                    if (error) {
+                        //do something with error
                         
-                        if (dic==nil) {
-                            
-                            
-                            [GMDCircleLoader hideFromView:newView animated:YES];
-                            [newView removeFromSuperview];
-                            
-                            
-                        }
-                        else{
-                            
-                            
-                            NSLog(@"hjfshjfhs%@",dic);
-                            
-                            
-                           
-                            
-                            NSMutableArray*arrayVal = [[NSMutableArray alloc]init];
-                            
-                            [arrayVal addObject:[dic valueForKey:@"ViewProfileExternal_N4Result"]];
-                            
-                            [GMDCircleLoader hideFromView:newView animated:YES];
-                            [newView removeFromSuperview];
-                            
-                            
-                            
-                            
-                            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-                            heyVoteProfileVC *myVC = (heyVoteProfileVC *)[storyboard instantiateViewControllerWithIdentifier:@"heyVoteProfileVC"];
-                            myVC.profileArray = arrayVal;
-                            myVC.contactToke = [[globalArray valueForKey:@"Token"] objectAtIndex:indexPath.section];
-                            [self PushAnimation];
-                            [self.navigationController pushViewController:myVC animated:NO];
-                            
-                            
-                        }
+                        [GMDCircleLoader hideFromView:newView animated:YES];
+                        [newView removeFromSuperview];
+                    } else {
                         
-                        
-                        
-                        
-                    });
-                }
-            }];
+                        NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                        //            NSString *responseText = [[NSString alloc] initWithData:data encoding: NSASCIIStringEncoding];
+                        //            NSString *newLineStr = @"\n";
+                        //            responseText = [responseText stringByReplacingOccurrencesOfString:@"<br />" withString:newLineStr];
+                        //
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            if (dic==nil) {
+                                
+                                
+                                [GMDCircleLoader hideFromView:newView animated:YES];
+                                [newView removeFromSuperview];
+                                
+                                
+                            }
+                            else{
+                                
+                                
+                                NSLog(@"hjfshjfhs%@",dic);
+                                
+                                
+                                
+                                
+                                NSMutableArray*arrayVal = [[NSMutableArray alloc]init];
+                                
+                                [arrayVal addObject:[dic valueForKey:@"ViewProfileExternal_N4Result"]];
+                                
+                                [GMDCircleLoader hideFromView:newView animated:YES];
+                                [newView removeFromSuperview];
+                                
+                                
+                                
+                                
+                                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                                heyVoteProfileVC *myVC = (heyVoteProfileVC *)[storyboard instantiateViewControllerWithIdentifier:@"heyVoteProfileVC"];
+                                myVC.profileArray = arrayVal;
+                                
+                                
+                                if (indexPath !=nil) {
+                                    
+                                    myVC.contactToke = [[globalArray valueForKey:@"UserIdf"] objectAtIndex:indexPath.section];
+                                    
+                                }
+                                
+                                else{
+                                    
+                                    myVC.contactToke = [[globalArray valueForKey:@"UserIdf"] objectAtIndex:0];
+                                    
+                                }
+                                
+                                
+                                [self PushAnimation];
+                                [self.navigationController pushViewController:myVC animated:NO];
+                                
+                                
+                            }
+                            
+                            
+                            
+                            
+                        });
+                    }
+                }];
                 
             });
         }
@@ -6958,6 +11911,65 @@ timerLoad = @"";
         
         
     }
+
+    
+}
+
+
+- (void)longPressInfo:(UITapGestureRecognizer *)gestureRecognizer
+{
+    //do you right swipe stuff here. Something usually using theindexPath that you get that way
+    CGPoint location = [gestureRecognizer locationInView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:location];
+    
+  
+    
+     NSString *stringName =[[globalArray valueForKey:@"UserDisplayName"] objectAtIndex:indexPath.section];
+    
+    NSString *stringPercent =[[globalArray valueForKey:@"Won"] objectAtIndex:indexPath.section];
+     NSString* percentV = @"%";
+    NSString* newVals = [NSString stringWithFormat:@"%@%@ are with %@",stringPercent,percentV,stringName];
+    
+  
+    if ([_infoView isHidden]) {
+        
+        _infoView.alpha = 0;
+        // _funSeriousView.hidden = YES;
+        [UIView animateWithDuration:0.3 animations:^{
+            _infoView.alpha = 1;
+        }];
+        
+        
+        [_infoView setHidden:NO];
+        _infoLabel.text = newVals;
+        
+    }
+    
+    else{
+        
+        _infoView.alpha = 1;
+        // _funSeriousView.hidden = YES;
+        [UIView animateWithDuration:0.3 animations:^{
+            _infoView.alpha = 0;
+        }];
+        
+        
+        [_infoView setHidden:YES];
+        
+    }
+    
+    
+    
+}
+
+
+
+-(void)buttonAction:(id)sender{
+    
+    
+
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
     
 }
 
@@ -7001,7 +12013,14 @@ timerLoad = @"";
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     CameraViewController *myVC = (CameraViewController *)[storyboard instantiateViewControllerWithIdentifier:@"CameraViewController"];
     
-   
+    for (globalViewCell *cell in [self.myTableView visibleCells]) {
+        //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+        
+        
+        
+        [cell stopVideo];
+        [cell stopAudio];
+    }
     
     [self presentViewController:myVC animated:YES completion:nil];
     
@@ -7145,7 +12164,7 @@ timerLoad = @"";
                     }
                     else{
                         
-                        
+                        [_myTableView setUserInteractionEnabled:YES];
                         NSLog(@"hjfshjfhs%@",dic);
                         
                         
@@ -7169,7 +12188,7 @@ timerLoad = @"";
                         
                         
                         [ _refreshControl endRefreshing];
-                          [_myTableView setUserInteractionEnabled:YES];
+                        
                         
                     }
                     
@@ -8191,7 +13210,7 @@ timerLoad = @"";
                     NSDictionary *jsonDictionary =@{
                                                     
                                                     @"isWeb":@"false",
-                                                    @"voteOption":@"false",
+                                                    @"voteOption":[NSNumber numberWithInteger:0],
                                                     @"postId":[NSNumber numberWithInteger:IDval]
                                                     
                                                     };
@@ -8215,7 +13234,7 @@ timerLoad = @"";
                     
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     
-                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                     
                     
                     
@@ -8595,7 +13614,7 @@ timerLoad = @"";
                     NSDictionary *jsonDictionary =@{
                                                     
                                                     @"isWeb":@"false",
-                                                    @"voteOption":@"true",
+                                                    @"voteOption":[NSNumber numberWithInteger:1],
                                                     @"postId":[NSNumber numberWithInteger:IDval]
                                                     
                                                     };
@@ -8619,7 +13638,7 @@ timerLoad = @"";
                     
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     
-                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                    NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                     
                     
                     
@@ -8731,6 +13750,16 @@ timerLoad = @"";
         CommentVC *myVC = (CommentVC *)[storyboard instantiateViewControllerWithIdentifier:@"CommentVC"];
         
         myVC.valueId = IDval;
+        
+        for (globalViewCell *cell in [self.myTableView visibleCells]) {
+            //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+            
+            
+            
+            [cell stopVideo];
+            [cell stopAudio];
+        }
+        
         
         [self presentViewController:myVC animated:YES completion:nil];
         
@@ -8918,6 +13947,17 @@ timerLoad = @"";
         NSArray *activityItems = @[strUrl];
         UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
         activityVC.excludedActivityTypes = @[UIActivityTypeAssignToContact, UIActivityTypePrint];
+        
+        
+        for (globalViewCell *cell in [self.myTableView visibleCells]) {
+            //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+            
+            
+            
+            [cell stopVideo];
+            [cell stopAudio];
+        }
+        
         [self presentViewController:activityVC animated:TRUE completion:nil];
         
         
@@ -9842,7 +14882,7 @@ timerLoad = @"";
                     
                     cell.commentAttributedLabelFirst.text = cell.commentTextField.text;
                     
-                    [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+                    [cell.firsttImageButton  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"] options:SDWebImageRefreshCached];
                     
                     
                 
@@ -9852,14 +14892,14 @@ timerLoad = @"";
                     
                     cell.commentAttributedLabelTwo.attributedText = attributedText;
                         cell.commentAttributedCellSecond.text = cell.commentTextField.text;
-                       [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+                       [cell.secondButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"] options:SDWebImageRefreshCached];
                 }
                 
                 else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3) {
                     
                     cell.commentAttributedLabelThree.attributedText = attributedText;
                         cell.commentAttributedCellThird.text = cell.commentTextField.text;
-                       [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+                       [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"] options:SDWebImageRefreshCached];
                 }
                 
                 
@@ -9867,7 +14907,7 @@ timerLoad = @"";
                   
                   cell.commentAttributedLabelThree.attributedText = attributedText;
                       cell.commentAttributedCellThird.text = cell.commentTextField.text;
-                   [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"]];
+                   [cell.thirsButtonImage  sd_setImageWithURL:[NSURL URLWithString:imageString] placeholderImage:[UIImage imageNamed:@"placeholderImage.png"] options:SDWebImageRefreshCached];
               }
                 
                 
@@ -10000,13 +15040,16 @@ timerLoad = @"";
 }
 
 
-
 - (IBAction)buttonOverImage:(id)sender {
     
     
     CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
     NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+ 
+    
+    
     if (indexPath != nil)
     {
            if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 2) {
@@ -10258,6 +15301,9 @@ timerLoad = @"";
         NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
         NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
         
+        NSInteger postTypeId = [[[globalArray valueForKey:@"PostTypeId"] objectAtIndex:indexPath.section] integerValue];
+   
+        
         
         
         
@@ -10266,6 +15312,16 @@ timerLoad = @"";
         
         
         myVC.valueId = IDval;
+        myVC.postId = postTypeId;
+        
+        for (globalViewCell *cell in [self.myTableView visibleCells]) {
+            //  NSIndexPath *indexPath = [self.myTableView indexPathForCell:cell];
+            
+            
+            
+            [cell stopVideo];
+            [cell stopAudio];
+        }
         
         [self presentViewController:myVC animated:YES completion:nil];
         
@@ -10493,7 +15549,7 @@ timerLoad = @"";
                 
                 NSLog(@"JSON OUTPUT: %@",JSONString);
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                 
                 
                 
@@ -10642,7 +15698,7 @@ timerLoad = @"";
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
-                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/vote"]];
+                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
                 
                 
                 
@@ -10812,153 +15868,1659 @@ timerLoad = @"";
    
     
 }
-- (IBAction)thirdCommentButton:(id)sender {
-//    
-//    
-//    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-//    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
-//    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
-//    if (indexPath != nil)
-//    {
-//        
-//        NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
-//        
-//        BOOL interNetCheck=[WebServiceUrl InternetCheck];
-//        if (interNetCheck==YES ) {
-//            
-//            UIView *newView = [[UIView alloc]init];
-//            newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
-//            [self.view addSubview:newView];
-//            
-//            [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
-//            
-//            
-//            
-//            
-//            NSDictionary *jsonDictionary =@{
-//                                            @"contactToken":[[[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] valueForKey:@"UserIdf"] objectAtIndex:2],
-//                                            @"isWeb":@"false"                                           };
-//            
-//            
-//            
-//            
-//            
-//            
-//            NSError *error;
-//            
-//            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
-//                                
-//                                                               options:0
-//                                
-//                                                                 error:&error];
-//            
-//            NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
-//            
-//            NSLog(@"JSON OUTPUT: %@",JSONString);
-//            
-//            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/viewprofileExternal"]];
-//            
-//            
-//            
-//            [requestPost setHTTPMethod:@"POST"];
-//            
-//            
-//            
-//            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
-//            
-//            
-//            
-//            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
-//            
-//            
-//            
-//            [requestPost setHTTPBody: requestData];
-//            
-//            //  [requestPost addValue:@"hhhffftttuuu" forHTTPHeaderField:@"Value"];
-//            
-//            
-//            
-//            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
-//            
-//            // NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:requestPost delegate:self];
-//            
-//            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-//                if (error) {
-//                    //do something with error
-//                } else {
-//                    
-//                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-//                    //            NSString *responseText = [[NSString alloc] initWithData:data encoding: NSASCIIStringEncoding];
-//                    //            NSString *newLineStr = @"\n";
-//                    //            responseText = [responseText stringByReplacingOccurrencesOfString:@"<br />" withString:newLineStr];
-//                    //
-//                    dispatch_async(dispatch_get_main_queue(), ^{
-//                        
-//                        if (dic==nil) {
-//                            
-//                            
-//                            [GMDCircleLoader hideFromView:newView animated:YES];
-//                            [newView removeFromSuperview];
-//                            
-//                            
-//                        }
-//                        else{
-//                            
-//                            
-//                            NSLog(@"hjfshjfhs%@",dic);
-//                            
-//                            
-//                            
-//                            
-//                            NSMutableArray*arrayVal = [[NSMutableArray alloc]init];
-//                            
-//                            [arrayVal addObject:[dic valueForKey:@"ViewProfileExternalResult"]];
-//                            
-//                            [GMDCircleLoader hideFromView:newView animated:YES];
-//                            [newView removeFromSuperview];
-//                            
-//                            
-//                            
-//                            
-//                            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//                            heyVoteProfileVC *myVC = (heyVoteProfileVC *)[storyboard instantiateViewControllerWithIdentifier:@"heyVoteProfileVC"];
-//                            myVC.profileArray = arrayVal;
-//                            myVC.contactToke = [[globalArray valueForKey:@"Token"] objectAtIndex:indexPath.section];
-//                            [self PushAnimation];
-//                            [self.navigationController pushViewController:myVC animated:NO];
-//                            
-//                            
-//                        }
-//                        
-//                        
-//                        
-//                        
-//                    });
-//                }
-//            }];
-//        }
-//        
-//        else{
-//            
-//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
-//                                                            message:@""
-//                                                           delegate:self
-//                                                  cancelButtonTitle:@"OK"
-//                                                  otherButtonTitles:nil];
-//            [alert show];
-//            
-//            
-//        }
-//        
-//        
-//    }
-//    
-//    
-//    
-//    
-//    
-//    
+
+- (IBAction)threeVersusRightButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayThreeVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+         //   NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.threeVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.threeVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                    green:200.0f/255.0f
+                                                                                     blue:200.0f/255.0f
+                                                                                    alpha:1.0f]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:2],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValThreeVersus = @"downvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
 }
-- (IBAction)videoThumbnailPlayButton:(id)sender {
+
+- (IBAction)threeVersusRightResultButton:(id)sender {
+}
+
+- (IBAction)threeVersusFirstSecondLeftButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayThreeVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                     cell.threeVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                        green:200.0f/255.0f
+                                                                         blue:200.0f/255.0f
+                                                                        alpha:1.0f]];
+                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                     [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+             
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:0],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValThreeVersus = @"leftvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (IBAction)threeVersusFirstSecondRightButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayThreeVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.threeVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.threeVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.threeVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.threeVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.threeVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                               green:200.0f/255.0f
+                                                                                                blue:200.0f/255.0f
+                                                                                               alpha:1.0f]];
+                    [cell.threeVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:1],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValThreeVersus = @"rightvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (IBAction)threeVersusFinalLeftButton:(id)sender {
+}
+
+- (IBAction)threeVersusFinalRightButton:(id)sender {
+}
+
+- (IBAction)fourVersusFirstSecondLeftButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayFourVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                     cell.fourVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                              green:200.0f/255.0f
+                                                                                               blue:200.0f/255.0f
+                                                                                              alpha:1.0f]];
+                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                     [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:0],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValFourVersus = @"leftvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (IBAction)fourVersusFirstSecondRightButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayFourVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                              green:200.0f/255.0f
+                                                                                               blue:200.0f/255.0f
+                                                                                              alpha:1.0f]];
+                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:1],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValFourVersus = @"rightvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (IBAction)fourVersusLeftButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayFourVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                  green:200.0f/255.0f
+                                                                                   blue:200.0f/255.0f
+                                                                                  alpha:1.0f]];
+                    [cell.fourVersusRightButton setBackgroundColor:[UIColor whiteColor]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:2],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValFourVersus = @"downleftvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (IBAction)fourVersusRightButton:(id)sender {
+    
+    // timerLoad = @"invalid";
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
+    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
+    
+    
+    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
+        [self showToast:@"You can't vote on this post"];
+    }
+    
+    else{
+        
+        if (indexPath != nil)
+        {
+            [voteResultAraayFourVersus addObject:[globalArray objectAtIndex:indexPath.section]];
+            
+            
+            NSInteger IDval = [[[globalArray valueForKey:@"Id"] objectAtIndex:indexPath.section] integerValue];
+            
+            NSLog(@"%@",[globalArray objectAtIndex:indexPath.section]);
+            if ([[[globalArray valueForKey:@"isDone"] objectAtIndex:indexPath.section] integerValue]  == 0) {
+                
+                
+                if ( [[[globalArray objectAtIndex:indexPath.section] valueForKey:@"hasVoted"] integerValue ]==0) {
+                    
+                    
+                    
+                    cell.fourVersusFirstSecondLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusFirstSecondRightButton.userInteractionEnabled = NO;
+                    cell.fourVersusLeftButton.userInteractionEnabled = NO;
+                    cell.fourVersusRightButton.userInteractionEnabled = NO;
+                    
+                    
+                    
+                    [cell.fourVersusFirstSecondLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusFirstSecondRightButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusLeftButton setBackgroundColor:[UIColor whiteColor]];
+                    [cell.fourVersusRightButton setBackgroundColor:[UIColor colorWithRed:200.0f/255.0f
+                                                                                   green:200.0f/255.0f
+                                                                                    blue:200.0f/255.0f
+                                                                                   alpha:1.0f]];
+                    
+                    if ([[[globalArray valueForKey:@"PostType"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                        
+                        [cell.progresssView setHidden:NO];
+                        
+                        cell.circularProgress.progressTintColor = [UIColor colorWithRed:202.0f/255.0f
+                                                                                  green:0.0f/255.0f
+                                                                                   blue:20.0f/255.0f
+                                                                                  alpha:0.7f];
+                        cell.circularProgress.max = 1.0f;
+                        cell.circularProgress.fillRadiusPx = 25;
+                        cell.circularProgress.step = 0.1f;
+                        cell.circularProgress.startAngle = (M_PI * 3) * 0.5;
+                        cell.circularProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        cell.circularProgress.outlineWidth = 1;
+                        cell.circularProgress.outlineTintColor = [UIColor whiteColor];
+                        cell.circularProgress.endPoint = [[HKCircularProgressEndPointSpike alloc] init];
+                        
+                        
+                        [[HKCircularProgressView appearance] setAnimationDuration:5];
+                        
+                        cell.circularProgress.alwaysDrawOutline = YES;
+                        
+                        
+                        cell.insideProgress.fillRadius = 1;
+                        cell.insideProgress.progressTintColor = [UIColor lightGrayColor];
+                        cell.insideProgress.translatesAutoresizingMaskIntoConstraints = NO;
+                        [cell.circularProgress setCurrent:testVa
+                                                 animated:YES];
+                        [cell.insideProgress setCurrent:1.0f
+                                               animated:YES];
+                        
+                        
+                    }
+                    NSString*uVoted = [NSString stringWithFormat:@"You have voted for \"%@\"",cell.leftButton.currentTitle];
+                    
+                    cell.youHaveVotedLabel.text =uVoted;
+                    
+                    
+                    NSInteger newVall = [cell.totalVotesLabel.text integerValue] + 1;
+                    cell.totalVotesLabel.text = [NSString stringWithFormat:@"%ld HeyVotes",(long)newVall];
+                    
+                    
+                    
+                    
+                    BOOL interNetCheck=[WebServiceUrl InternetCheck];
+                    if (interNetCheck==YES ) {
+                        
+                        
+                        
+                        
+                        
+                        //
+                        //                    UIView *newView = [[UIView alloc]init];
+                        //                    newView.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
+                        //                    [self.view addSubview:newView];
+                        //
+                        //                    [GMDCircleLoader setOnView:newView withTitle:@"Loading..." animated:YES];
+                        //
+                        
+                        
+                        
+                        NSDictionary *jsonDictionary =@{
+                                                        
+                                                        @"isWeb":@"false",
+                                                        @"voteOption":[NSNumber numberWithInteger:3],
+                                                        @"postId":[NSNumber numberWithInteger:IDval]
+                                                        
+                                                        };
+                        
+                        
+                        
+                        
+                        
+                        
+                        NSError *error;
+                        
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                            
+                                                                           options:0
+                                            
+                                                                             error:&error];
+                        
+                        NSString *JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                        
+                        NSLog(@"JSON OUTPUT: %@",JSONString);
+                        
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            
+                            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/Vote_Z1"]];
+                            
+                            
+                            
+                            [requestPost setHTTPMethod:@"POST"];
+                            
+                            
+                            
+                            [requestPost setValue:@"application/json;charset=UTF-8" forHTTPHeaderField:@"content-type"];
+                            
+                            
+                            
+                            NSData *requestData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+                            
+                            
+                            
+                            [requestPost setHTTPBody: requestData];
+                            
+                            
+                            [requestPost addValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"tokenVal"] forHTTPHeaderField:@"hjtyu34"];
+                            
+                            
+                            
+                            [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                if (error) {
+                                    //do something with error
+                                } else {
+                                    
+                                    NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                        if (dic==nil) {
+                                            
+                                            
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                        }
+                                        else{
+                                            
+                                            
+                                            NSLog(@"hjfshjfhs%@",dic);
+                                            
+                                            
+                                            [self callWebServiceRefresh:0];
+                                            voteResultValFourVersus = @"downrightvoted";
+                                            
+                                            
+                                            //
+                                            //                                    [GMDCircleLoader hideFromView:newView animated:YES];
+                                            //                                    [newView removeFromSuperview];
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        
+                                    });
+                                }
+                            }];
+                            
+                        });
+                    }
+                    
+                    else{
+                        
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please check your Internet Connection"
+                                                                        message:@""
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                //   [cell.yesNoMainView setHidden:YES];
+                
+                
+                
+                
+            }
+            
+            
+        }
+    }
+    
+}
+
+
+
+- (IBAction)rollOverButton:(id)sender {
+    
+    if ([topViewVal isEqualToString:@"one"]) {
+        topViewVal = @"two";
+        
+        
+        
+        [_topView setHidden:NO];
+        
+        
+        CATransition *transition = [CATransition animation];
+        transition.type = kCATransitionPush;
+        transition.subtype = kCATransitionFromRight;
+        transition.duration = 0.3;
+        [_topView.layer addAnimation:transition forKey:nil];
+        
+    }
+    
+    else{
+        topViewVal = @"one";
+        [_topView setHidden:YES];
+        
+        CATransition *transition = [CATransition animation];
+        transition.type = kCATransitionPush;
+        transition.subtype = kCATransitionFromLeft;
+        transition.duration = 0.4;
+        [_topView.layer addAnimation:transition forKey:nil];
+
+    }
+    
 }
 @end

@@ -20,6 +20,7 @@
     
     NSString*OTPvalue;
     NSString * OTPid;
+     NSString * EmailllId;
 }
 
 @end
@@ -54,6 +55,27 @@
     
     
     _countryCodeLabel.text = diallingCode;
+            
+        }
+        
+        else{
+            
+            [self showToast:@"You need a working sim network"];
+        }
+    }
+    
+    
+    else{
+        if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tel:123456"]])
+        {
+            
+            
+            
+            NSString * diallingCode = [NSString stringWithFormat:@"+%@",[self getCountryDialingCode]];
+            
+            
+            
+            _countryCodeLabel.text = diallingCode;
             
         }
         
@@ -414,7 +436,43 @@
     }
 
     
-    
+    else{
+        if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tel:123456"]])
+        {
+            NSLog(@"Device can make call or send message");
+            
+            if ([_mobileNumberText.text length]==0) {
+                
+                NSString* errorMsg = @"Enter your Mobile Number";
+                [self showToast:errorMsg];
+                
+                
+            }
+            
+            else  if([[self validateMobileNumber:_mobileNumberText.text] isEqualToString:@""]){
+                
+                
+                [self callWebService];
+                
+                
+                
+                
+                
+            }
+            
+            
+            
+            
+        }
+        else
+        {
+            NSLog(@"Device can not make call or send message");
+            NSString* errorMsg = @"Invalid Sim";
+            [self showToast:errorMsg];
+            
+            
+        }
+    }
     
 
     
@@ -488,6 +546,8 @@
     [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
         if (error) {
             //do something with error
+            [GMDCircleLoader hideFromView:newView animated:YES];
+            [newView removeFromSuperview];
         } else {
             
             NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -527,13 +587,28 @@
                     
                     else{
                         
-                        [_enterOTPView setHidden:NO];
+                     
                         
                       
                         OTPid = [[dic valueForKey:@"CheckIfUserExistsResult"] valueForKey:@"otpId"];
+                        EmailllId = [[dic valueForKey:@"CheckIfUserExistsResult"] valueForKey:@"EmailId"];
                         
-                        NSString* errorMsg = @"Check your registered EmailID for OTP";
-                        [self showToast:errorMsg];
+                        NSString *newt = [NSString stringWithFormat:@"(%@) %@",_countryCodeLabel.text,_mobileNumberText.text];
+                        _mobileNumberForOTP.text = newt;
+                        
+                        
+                        NSString *newtett = [NSString stringWithFormat:@"We have sent the OTP to %@",EmailllId];
+                        _weSentOTPtext.text = newtett;
+                        
+                        
+                        [_opaqueView setHidden:NO];
+                        [_termsConditionsView setHidden:NO];
+                        
+                        
+                        
+//                        
+//                        NSString* errorMsg = @"Check your registered EmailID for OTP";
+//                        [self showToast:errorMsg];
                     }
                     
                     
@@ -572,13 +647,22 @@
 
 -(void)callWebServiceForDeviceId{
     
-    
+    NSInteger commonDeciceToken;
     BOOL interNetCheck=[WebServiceUrl InternetCheck];
     if (interNetCheck==YES ) {
         
+        if ([[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"] == nil) {
+            commonDeciceToken = 0;
+        }
+        
+        else{
+            commonDeciceToken = [[[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"] integerValue];
+        }
+        
+        
         
         NSDictionary *jsonDictionary =@{ @"osVersionId":[NSNumber numberWithInteger:2],
-                                         @"comId":[[NSUserDefaults standardUserDefaults] valueForKey:@"NSUserDefault_DeviceToken"],
+                                         @"comId":[NSNumber numberWithInteger:commonDeciceToken ],
                                          @"isWeb":[NSNumber numberWithBool:0]
                                          
                                          
@@ -630,6 +714,7 @@
         [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
             if (error) {
                 //do something with error
+                
             } else {
                 
                 NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -749,6 +834,8 @@
         [NSURLConnection sendAsynchronousRequest:requestPost queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
             if (error) {
                 //do something with error
+                [GMDCircleLoader hideFromView:newView animated:YES];
+                [newView removeFromSuperview];
             } else {
                 
                 NSDictionary *dic=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -830,6 +917,16 @@
 }
 
 - (IBAction)agreeButton:(id)sender {
+    if (![_weSentOTPtext.text isEqualToString:@""]) {
+        
+        
+        [_opaqueView setHidden:YES];
+        [_termsConditionsView setHidden:YES];
+        [_enterOTPView setHidden:NO];
+
+    }
+    
+    else{
     
     [_opaqueView setHidden:YES];
     [_termsConditionsView setHidden:YES];
@@ -839,6 +936,8 @@
     myVC.countrytCode = _countryCodeLabel.text;
     
     [self.navigationController pushViewController:myVC animated:YES];
+        
+    }
 
 }
 
