@@ -15,12 +15,6 @@
 #import "FollowFollowingViewController.h"
 
 
-#import "UIView+Toast.h"
-#import "GMDCircleLoader.h"
-
-#import "WebServiceUrl.h"
-#import "UIImageView+WebCache.h"
-
 @interface profileDetailsViewController (){
     
     

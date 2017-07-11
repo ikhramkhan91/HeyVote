@@ -8,6 +8,9 @@
 
 #import "AppDelegate.h"
 #import "homeViewController.h"
+#import <GooglePlus/GooglePlus.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+
 
 
 @interface AppDelegate ()
@@ -15,6 +18,8 @@
 @end
 
 @implementation AppDelegate
+static NSString * const kClientID =
+@"650325777554-hunbnh6qr4k0ac175r48cmr4bgelmhqs.apps.googleusercontent.com";
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -37,6 +42,15 @@
         [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"] animated:NO];
         
     }
+//    
+//    else{
+//        
+//        UINavigationController *navigationController = (UINavigationController *) self.window.rootViewController;
+//        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+//        [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"FaceBookGoogleSignUpVC"] animated:NO];
+//        
+//        
+//    }
 
 //    
 //    UIApplicationShortcutItem *item1 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic1" localizedTitle:@"Easy Post" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeCompose] userInfo:nil];
@@ -64,8 +78,17 @@
 //
     
     
-
+    [[FBSDKApplicationDelegate sharedInstance] application:application
+                             didFinishLaunchingWithOptions:launchOptions];
     
+    
+     GPPSignIn *SignIn = [GPPSignIn sharedInstance];
+    // Set app's client ID for |GPPSignIn| and |GPPShare|.
+    [GPPSignIn sharedInstance].clientID = kClientID;
+    
+    
+    
+        
 
     return YES;
 }
@@ -85,6 +108,33 @@
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      _stringValss = @"";
        NSLog(@"%ld", (long)[UIApplication sharedApplication].applicationIconBadgeNumber );
+}
+
+- (BOOL)application: (UIApplication *)application
+            openURL: (NSURL *)url
+  sourceApplication: (NSString *)sourceApplication
+         annotation: (id)annotation {
+    NSString *stringURL = [ url absoluteString];
+    if([stringURL containsString:@"fb"])
+    {
+        
+        
+        return [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                              openURL:url
+                                                    sourceApplication:sourceApplication
+                                                           annotation:annotation];
+    }
+    else
+    {
+        return [GPPURLHandler handleURL:url
+                      sourceApplication:sourceApplication
+                             annotation:annotation];
+        
+    }
+    
+//    return [GPPURLHandler handleURL:url
+//                  sourceApplication:sourceApplication
+//                         annotation:annotation];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

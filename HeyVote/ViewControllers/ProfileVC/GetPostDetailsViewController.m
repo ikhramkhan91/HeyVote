@@ -784,6 +784,7 @@
     
     if (globalArray.count >0 ) {
         
+ 
     
         if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
             
@@ -811,7 +812,7 @@
             tabHeight = 621;
             
         }
-        
+
     }
     
     else{

@@ -1364,7 +1364,7 @@ timerLoad = @"";
 #pragma mark - Table View Data source
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:
 (NSInteger)section{
-    return 1;
+    return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:
@@ -10421,10 +10421,14 @@ timerLoad = @"";
             
             
         }
-        
-        
-        
-        
+//        UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+//        
+//        //set the position of the button
+//        button.frame = CGRectMake(cell.frame.origin.x + 100, cell.frame.origin.y + 20, 100, 30);
+//        [button setTitle:@"World" forState:UIControlStateNormal];
+//        [button addTarget:self action:@selector(customActionPressed:) forControlEvents:UIControlEventTouchUpInside];
+//        button.backgroundColor= [UIColor redColor];
+//       // [cell.contentView addSubview:button];
     }
     else{
     cell = [tableView dequeueReusableCellWithIdentifier:
@@ -11058,7 +11062,7 @@ timerLoad = @"";
                 [view addSubview:labelImage];
                 
                  [view addSubview:buttonInfo];
-                [view addSubview:buttonChat];
+               // [view addSubview:buttonChat];
                 [view addSubview:label];
                 
               //  [view addSubview:labelSubInfo];
@@ -11265,7 +11269,7 @@ timerLoad = @"";
             
              [view addSubview:buttonInfo];
                 
-                [view addSubview:buttonChat];
+             //   [view addSubview:buttonChat];
             [view addSubview:label];
             //    [view addSubview:labelSubInfo];
             
@@ -11493,7 +11497,7 @@ timerLoad = @"";
                 [view addSubview:label];
                 [view addSubview:buttonInfo];
               //  [view addSubview:labelSubInfo];
-                [view addSubview:buttonChat];
+              //  [view addSubview:buttonChat];
                 [view addSubview:labelSub];
                 [view addSubview:button];
                 
@@ -11704,7 +11708,7 @@ timerLoad = @"";
             [view addSubview:labelImage];
             [view addSubview:buttonInfo];
            // [view addSubview:labelSubInfo];
-            [view addSubview:buttonChat];
+           // [view addSubview:buttonChat];
             [view addSubview:label];
                 
             [view addSubview:labelSub];

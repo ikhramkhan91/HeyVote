@@ -44,10 +44,46 @@
     _reenterEmailView.layer.cornerRadius=5.0;
     _reenterEmailView.clipsToBounds=YES;
     
-    genderID = @"1";
-    moodName = @"Fun";
-    moodID = @"1";
-    ageRangeID = @"1";
+    
+    
+    if ([[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] != nil) {
+        NSLog(@"value is there %@",[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"]);
+        NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] valueForKey:@"image"]]];
+        self.imageView.image =[UIImage imageWithData:imageData];
+        
+        
+        if ([[[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] valueForKey:@"gender"] isEqualToString:@"male"]) {
+              genderID = @"1";
+        }
+        
+        else{
+              genderID = @"2";
+        }
+        
+     
+        _emailText.text = [[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] valueForKey:@"email"];
+        _reenterEmailText.text = [[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] valueForKey:@"email"];
+        _nameText.text = [[[NSUserDefaults standardUserDefaults]objectForKey:@"googleDetails"] valueForKey:@"name"];
+        
+        
+        [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"googleDetails"];
+        [[NSUserDefaults standardUserDefaults]synchronize];
+    }
+    
+    else{
+        NSLog(@"noValue");
+        
+        genderID = @"1";
+        moodName = @"Fun";
+        moodID = @"1";
+        ageRangeID = @"1";
+        
+        
+    }
+    
+    
+    
+  
     
     
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -83,6 +119,12 @@
     tapGesture1.numberOfTapsRequired = 1;
 
     [self.imageView addGestureRecognizer:tapGesture1];
+    
+    
+    
+    
+    
+    
 
 }
 

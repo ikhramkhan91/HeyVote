@@ -17,6 +17,7 @@
 #import "heyVoteProfileVC.h"
 #import "CameraViewController.h"
 #import "profileViewController.h"
+#import "GetPostDetailsViewController.h"
 
 @interface searchTabViewController (){
     
@@ -155,11 +156,46 @@
     else{
         cell.searchName.text = [[_tableData valueForKey:@"DisplayName"] objectAtIndex:indexPath.row];
         
+
+        if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 1) {
+            NSString*  imageStr = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[_tableData valueForKey:@"ImageIdf"] objectAtIndex:indexPath.row],[[_tableData valueForKey:@"FolderPath"] objectAtIndex:indexPath.row]];
+            
+            
+            [cell.searchImage  sd_setImageWithURL:[NSURL URLWithString:imageStr] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+        }
         
-          NSString*imageStr = [NSString stringWithFormat:@"https://www.heyvote.com/Home/GetImage/%@/%@",[[_tableData valueForKey:@"ImageIdf"] objectAtIndex:indexPath.row],[[_tableData valueForKey:@"FolderPath"] objectAtIndex:indexPath.row]];
+        else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 2){
+            
+            
+            
+            UIImage *postImage = [UIImage imageNamed:@"070923-glossy-black-icon-alphanumeric-number-sign.png"];
+            NSData *data = UIImageJPEGRepresentation(postImage, 1.0);
+            
+            NSString *yourstring = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding]; // Or any other encoding method
+            NSURL *url = [[NSURL alloc] initWithString:yourstring];
+            
+            
+           [cell.searchImage  sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"070923-glossy-black-icon-alphanumeric-number-sign"]];
+            
+        }
+        
+        else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 3){
+            UIImage *postImage = [UIImage imageNamed:@"searchIcon.png"];
+            NSData *data = UIImageJPEGRepresentation(postImage, 1.0);
+            
+            NSString *yourstring = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding]; // Or any other encoding method
+            NSURL *url = [[NSURL alloc] initWithString:yourstring];
+            
+            
+            [cell.searchImage  sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"searchIcon.png"]];
+        }
         
         
-         [cell.searchImage  sd_setImageWithURL:[NSURL URLWithString:imageStr] placeholderImage:[UIImage imageNamed:@"userContacts.png"]];
+        
+        
+       
+        
+        
         
         
     }
@@ -174,11 +210,39 @@
 (NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
    
-    
+    if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 1){
     
     contactTokenVal = [[_tableData valueForKey:@"UserIdf"] objectAtIndex:indexPath.row];
     
      [self callProfileView];
+    
+    }
+    
+   else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 2){
+       
+
+       UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+       GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
+       myVC.postIdVal = [[_tableData valueForKey:@"UserIdf"] objectAtIndex:indexPath.row];
+       myVC.hashTagName = [[_tableData valueForKey:@"DisplayName"] objectAtIndex:indexPath.row];
+       myVC.hashTagValString = @"hashTag";
+       [self PushAnimation];
+       [self.navigationController pushViewController:myVC animated:NO];
+       
+   }
+    else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 3){
+        
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
+        myVC.postIdVal = [[_tableData valueForKey:@"UserIdf"] objectAtIndex:indexPath.row];
+        [self PushAnimation];
+        [self.navigationController pushViewController:myVC animated:NO];
+        
+    }
+    
+  
+    
+    
     
     
 }
@@ -414,7 +478,7 @@
         
         NSLog(@"JSON OUTPUT: %@",JSONString);
         
-        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/Searchusers_n2"]];
+        NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/user/Search"]];
         
         
         
@@ -464,7 +528,7 @@
                     else{
                         _tableData = [[NSMutableArray alloc] init];
                         
-                        [_tableData addObjectsFromArray:[dic valueForKey:@"SearchUsers_N2Result"]];
+                        [_tableData addObjectsFromArray:[dic valueForKey:@"SearchResult"]];
                         
                         [_searchTableView reloadData];
                         
