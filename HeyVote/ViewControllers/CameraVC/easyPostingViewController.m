@@ -6377,7 +6377,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               
                                               
                                               @"info":@{
-                                                      @"lstUsers_New":taggedDic,
+                                                      @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                                       @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                                       @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -6438,7 +6438,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               
                                               
                                               @"info":@{
-                                                      @"lstUsers_New":taggedDic,
+                                                      @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                                       @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                                       @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -6499,7 +6499,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                               
                                               @"info":@{
                                                       
-                                                      @"lstUsers_New":taggedDic,
+                                                      @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                                       @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                                       @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                                       @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -6795,6 +6795,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     
                     
                     [_doubleImageTextView setHidden:YES];
+                    [_doubleImageTitle setHidden:YES];
                     
                     
                     
@@ -6813,7 +6814,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     UIGraphicsEndImageContext();
                     
                     
-                    
+                     [_doubleImageTitle setHidden:NO];
                     [_doubleImageTextView setHidden:NO];
                     
                     
@@ -6839,6 +6840,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     [_finalView setHidden:NO];
                     [_finalViewImage setHidden:NO];
                     [_finalImageThreeVersusAndFour setHidden:YES];
+                     [_doubleImageTitle setHidden:YES];
                     
                     [_doubleImageTextView setHidden:YES];
                     
@@ -6856,7 +6858,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
                     UIGraphicsEndImageContext();
                     
-                    
+                     [_doubleImageTitle setHidden:NO];
                     [_doubleImageTextView setHidden:NO];
                     
                 }
@@ -6937,7 +6939,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -6997,7 +6999,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   
                                   @"info":@{
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -7057,7 +7059,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   
                                   @"info":@{
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -7295,7 +7297,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                      _finalViewImage.image =capturedImaget;
                      
                      [_singleImageTextView setHidden:YES];
-                     
+                      [_captureSingleImagetitle setHidden:YES];
                      
                      
                      CGRect rect = [_singleImageView bounds];
@@ -7315,7 +7317,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                      
                      
                      
-                     
+                      [_captureSingleImagetitle setHidden:NO];
                      [_singleImageTextView setHidden:NO];
                      
                      
@@ -7340,7 +7342,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                      [_finalView setHidden:NO];
                      [_finalViewImage setHidden:NO];
                      [_finalImageThreeVersusAndFour setHidden:YES];
-                     
+                      [_captureSingleImagetitle setHidden:YES];
                      
                      
                      CGRect rect = [_singleImageView bounds];
@@ -7359,7 +7361,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                      
                      
                      
-                     
+                      [_captureSingleImagetitle setHidden:NO];
                      [_singleImageTextView setHidden:NO];
                      
                  }
@@ -7440,7 +7442,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -7500,7 +7502,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   
                                   @"info":@{
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -7561,7 +7563,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -7802,7 +7804,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       _finalImageThreeVersusAndFour.image =capturedImaget;
                       
                       
-                      
+                       [_threeImageTitle setHidden:YES];
                       [_threeVersusFirstText setHidden:YES];
                       [_threeVersusSecondText setHidden:YES];
                       [_threeVersusThirdText setHidden:YES];
@@ -7823,7 +7825,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       UIGraphicsEndImageContext();
                       
                       
-                      
+                       [_threeImageTitle setHidden:NO];
                       [_threeVersusFirstText setHidden:NO];
                       [_threeVersusSecondText setHidden:NO];
                       [_threeVersusThirdText setHidden:NO];
@@ -7858,7 +7860,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       [_finalView setHidden:NO];
                       [_finalViewImage setHidden:YES];
                       [_finalImageThreeVersusAndFour setHidden:NO];
-                      
+                       [_threeImageTitle setHidden:YES];
                       [_threeVersusFirstText setHidden:YES];
                       [_threeVersusSecondText setHidden:YES];
                       [_threeVersusThirdText setHidden:YES];
@@ -7879,7 +7881,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       UIGraphicsEndImageContext();
                       
                       
-                      
+                       [_threeImageTitle setHidden:NO];
                       [_threeVersusFirstText setHidden:NO];
                       [_threeVersusSecondText setHidden:NO];
                       [_threeVersusThirdText setHidden:NO];
@@ -8007,7 +8009,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -8067,7 +8069,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   
                                   @"info":@{
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -8127,7 +8129,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -8365,7 +8367,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       _finalImageThreeVersusAndFour.image =capturedImaget;
                       
                       
-                      
+                       [_fourImageTitle setHidden:YES];
                       [_fourVersusFirstText setHidden:YES];
                       [_fourVersusSecondText setHidden:YES];
                       [_fourVersusThirdText setHidden:YES];
@@ -8386,7 +8388,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       capturedImageQuadraple= UIGraphicsGetImageFromCurrentImageContext();
                       UIGraphicsEndImageContext();
                       
-                      
+                       [_fourImageTitle setHidden:NO];
                       [_fourVersusFirstText setHidden:NO];
                       [_fourVersusSecondText setHidden:NO];
                       [_fourVersusThirdText setHidden:NO];
@@ -8412,7 +8414,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       [_finalView setHidden:NO];
                       [_finalViewImage setHidden:YES];
                       [_finalImageThreeVersusAndFour setHidden:NO];
-                      
+                       [_fourImageTitle setHidden:YES];
                       [_fourVersusFirstText setHidden:YES];
                       [_fourVersusSecondText setHidden:YES];
                       [_fourVersusThirdText setHidden:YES];
@@ -8434,7 +8436,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                       UIGraphicsEndImageContext();
                       
                       
-                      
+                       [_fourImageTitle setHidden:NO];
                       [_fourVersusFirstText setHidden:NO];
                       [_fourVersusSecondText setHidden:NO];
                       [_fourVersusThirdText setHidden:NO];
@@ -8588,7 +8590,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -8648,7 +8650,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   
                                   @"info":@{
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -8709,7 +8711,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                   
                                   @"info":@{
                                           
-                                          @"lstUsers_New":taggedDic,
+                                          @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                           @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                           @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                           @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call
@@ -9044,7 +9046,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       @"info":@{
                                               
                                               
-                                              @"lstUsers_New":taggedDic,
+                                              @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                               @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                               @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:0], // i ll explain this by call
@@ -9108,7 +9110,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                                       
                                       @"info":@{
                                               
-                                              @"lstUsers_New":@[taggedDic],
+                                              @"lstUsers_New":@{@"Idf":@""    ,@"X":@""        ,@"Y":@""},
                                               @"ScreenHeight":[NSNumber numberWithInt:screenheight],
                                               @"ScreenWidth":[NSNumber numberWithInt:screenWidthh],
                                               @"IsPublic":[NSNumber numberWithInt:1], // i ll explain this by call

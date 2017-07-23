@@ -54,7 +54,7 @@
 
 }
 - (void)showMainMenu:(NSNotification *)note {
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"homeView" bundle:nil];
     homeViewController *myVC = (homeViewController *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
     
     [self PushAnimation];
@@ -62,7 +62,7 @@
 }
 - (IBAction)homeButton:(id)sender {
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"homeView" bundle:nil];
     homeViewController *myVC = (homeViewController *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
     
     [self PushAnimation];
@@ -86,7 +86,7 @@
 - (IBAction)centerButton:(id)sender {
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"CameraView" bundle:nil];
     CameraViewController *myVC = (CameraViewController *)[storyboard instantiateViewControllerWithIdentifier:@"CameraViewController"];
     
     
@@ -221,7 +221,7 @@
    else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 2){
        
 
-       UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+       UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"getPost" bundle:nil];
        GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
        myVC.postIdVal = [[_tableData valueForKey:@"UserIdf"] objectAtIndex:indexPath.row];
        myVC.hashTagName = [[_tableData valueForKey:@"DisplayName"] objectAtIndex:indexPath.row];
@@ -232,7 +232,7 @@
    }
     else if ([[[_tableData valueForKey:@"SearchCategory"] objectAtIndex:indexPath.row] integerValue] == 3){
         
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"getPost" bundle:nil];
         GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
         myVC.postIdVal = [[_tableData valueForKey:@"UserIdf"] objectAtIndex:indexPath.row];
         [self PushAnimation];

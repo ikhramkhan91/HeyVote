@@ -809,7 +809,7 @@ genderID = @"1";
                             [[NSUserDefaults standardUserDefaults]synchronize];
                             
                             
-                            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"homeView" bundle:nil];
                             homeViewController *myVC = (homeViewController *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
                             
                             [self.navigationController pushViewController:myVC animated:YES];

@@ -502,7 +502,7 @@
 //    
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"getPost" bundle:nil];
     GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
     myVC.postIdVal = [[indexArrayVal valueForKey:@"Id"] objectAtIndex:indexPath.row];
     [self PushAnimation];

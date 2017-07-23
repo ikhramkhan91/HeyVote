@@ -38,7 +38,7 @@ static NSString * const kClientID =
        // self.window.rootViewController = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
         
         UINavigationController *navigationController = (UINavigationController *) self.window.rootViewController;
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"homeView" bundle:nil];
         [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"] animated:NO];
         
     }

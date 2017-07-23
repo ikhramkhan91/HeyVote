@@ -3985,6 +3985,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 _finalViewImage.image =capturedImaget;
                 
                 [_singleImageTextView setHidden:YES];
+                [_finalViewWithGestures setHidden:YES];
                 
                 
                 
@@ -4005,7 +4006,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
                 
                 
-                
+                 [_finalViewWithGestures setHidden:NO];
                 [_singleImageTextView setHidden:NO];
                 
                 
@@ -4026,6 +4027,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
                 
                 [_singleImageTextView setHidden:YES];
+                 [_finalViewWithGestures setHidden:YES];
                 
                 [_finalView setHidden:NO];
                 [_finalViewImage setHidden:NO];
@@ -4049,7 +4051,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
                 
                 
-                
+                 [_finalViewWithGestures setHidden:NO];
                 [_singleImageTextView setHidden:NO];
                 
             }
@@ -4086,6 +4088,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 
                 
                 [_doubleImageTextView setHidden:YES];
+                 [_finalViewWithGestures setHidden:YES];
                 
                 
                 
@@ -4104,7 +4107,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 UIGraphicsEndImageContext();
                 
                 
-                
+                 [_finalViewWithGestures setHidden:NO];
                 [_doubleImageTextView setHidden:NO];
                 
                 
@@ -4132,6 +4135,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 [_finalImageThreeVersusAndFour setHidden:YES];
                 
                 [_doubleImageTextView setHidden:YES];
+                 [_finalViewWithGestures setHidden:YES];
                 
                 CGRect rect = [_singleImageView bounds];
                 UIGraphicsBeginImageContextWithOptions(rect.size,_singleImageView.opaque,0.0f);
@@ -4147,7 +4151,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 capturedImageDouble= UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
                 
-                
+                 [_finalViewWithGestures setHidden:NO];
                 [_doubleImageTextView setHidden:NO];
                 
             }
@@ -4194,7 +4198,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 _finalImageThreeVersusAndFour.image =capturedImaget;
                 
                 
-                
+                 [_threeversusFinalViewWithGestures setHidden:YES];
                 [_threeVersusFirstText setHidden:YES];
                 [_threeVersusSecondText setHidden:YES];
                 [_threeVersusThirdText setHidden:YES];
@@ -4215,7 +4219,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 UIGraphicsEndImageContext();
                 
                 
-             
+              [_threeversusFinalViewWithGestures setHidden:NO];
                 [_threeVersusFirstText setHidden:NO];
                 [_threeVersusSecondText setHidden:NO];
                 [_threeVersusThirdText setHidden:NO];
@@ -4250,7 +4254,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 [_finalView setHidden:NO];
                 [_finalViewImage setHidden:YES];
                 [_finalImageThreeVersusAndFour setHidden:NO];
-                
+                 [_threeversusFinalViewWithGestures setHidden:YES];
                 [_threeVersusFirstText setHidden:YES];
                 [_threeVersusSecondText setHidden:YES];
                 [_threeVersusThirdText setHidden:YES];
@@ -4271,7 +4275,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 UIGraphicsEndImageContext();
                 
                 
-                
+                 [_threeversusFinalViewWithGestures setHidden:NO];
                 [_threeVersusFirstText setHidden:NO];
                 [_threeVersusSecondText setHidden:NO];
                 [_threeVersusThirdText setHidden:NO];
@@ -4318,7 +4322,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 _finalImageThreeVersusAndFour.image =capturedImaget;
                 
                 
-                
+                 [_fourVersusFinalGestures setHidden:YES];
                 [_fourVersusFirstText setHidden:YES];
                 [_fourVersusSecondText setHidden:YES];
                 [_fourVersusThirdText setHidden:YES];
@@ -4339,7 +4343,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 capturedImageQuadraple= UIGraphicsGetImageFromCurrentImageContext();
                 UIGraphicsEndImageContext();
                 
-                
+                 [_fourVersusFinalGestures setHidden:NO];
                 [_fourVersusFirstText setHidden:NO];
                 [_fourVersusSecondText setHidden:NO];
                 [_fourVersusThirdText setHidden:NO];
@@ -4365,7 +4369,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 [_finalView setHidden:NO];
                 [_finalViewImage setHidden:YES];
                 [_finalImageThreeVersusAndFour setHidden:NO];
-                
+                 [_fourVersusFinalGestures setHidden:YES];
                 [_fourVersusFirstText setHidden:YES];
                 [_fourVersusSecondText setHidden:YES];
                 [_fourVersusThirdText setHidden:YES];
@@ -4387,7 +4391,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 UIGraphicsEndImageContext();
                 
                 
-                
+                 [_fourVersusFinalGestures setHidden:NO];
                 [_fourVersusFirstText setHidden:NO];
                 [_fourVersusSecondText setHidden:NO];
                 [_fourVersusThirdText setHidden:NO];

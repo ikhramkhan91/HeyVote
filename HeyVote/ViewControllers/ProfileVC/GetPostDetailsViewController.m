@@ -6707,7 +6707,7 @@
     
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"CameraView" bundle:nil];
     CameraViewController *myVC = (CameraViewController *)[storyboard instantiateViewControllerWithIdentifier:@"CameraViewController"];
     
     
@@ -6807,7 +6807,7 @@
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_N6"]];
+            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z2"]];
             
             
             
@@ -6866,7 +6866,7 @@
                             NSMutableArray* dataArray = [[NSMutableArray alloc]init];
                             
                             
-                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_N6Result"]];
+                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z2Result"]];
                             
                             if (dataArray.count > 0) {
                                 [globalArray addObjectsFromArray:dataArray];

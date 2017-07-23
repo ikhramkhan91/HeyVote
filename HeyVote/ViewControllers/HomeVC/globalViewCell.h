@@ -16,6 +16,7 @@
 
 @interface globalViewCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UILabel *titleLableText;
 
 @property (weak, nonatomic) IBOutlet UILabel *timerCell;
 @property (weak, nonatomic) IBOutlet UIView *yesNoMainView;

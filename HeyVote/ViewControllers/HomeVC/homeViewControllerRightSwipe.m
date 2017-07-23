@@ -268,7 +268,7 @@
     NSLog(@"RIGHT SWIPE");
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"homeView" bundle:nil];
     homeViewController *myVC = (homeViewController *)[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"];
     
         CATransition *transition = [CATransition animation];
@@ -1185,31 +1185,46 @@
         
         
         
-        if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
+        if (indexPath.row == 0) {
             
             
-            tabHeight = 460;
-            
+            if ([[[globalArray valueForKey:@"isOld"] objectAtIndex:indexPath.section] integerValue] == 1) {
+               tabHeight = 0;
+            }
+            else{
+            tabHeight = 75;
+                
+            }
         }
-        
-        else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
+        else{
             
             
-            tabHeight = 511;
+            if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
+                
+                
+                tabHeight = 460;
+                
+            }
             
-        }
-        else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
+            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 1) {
+                
+                
+                tabHeight = 511;
+                
+            }
+            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 2) {
+                
+                
+                tabHeight = 572;
+                
+            }
             
-            
-            tabHeight = 572;
-            
-        }
-        
-        else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3 || [[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
-            
-            
-            tabHeight = 621;
-            
+            else if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 3 || [[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] > 3) {
+                
+                
+                tabHeight = 621;
+                
+            }
         }
         
     }
@@ -1221,15 +1236,42 @@
     
     if (screenWidth == 320) {
         
-        tabHeight = tabHeight;
-        
+        if (indexPath.row == 0) {
+            
+            if ([[[globalArray valueForKey:@"isOld"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                tabHeight = 0;
+            }
+            else{
+            tabHeight = 75;
+                
+            }
+        }
+        else{
+            
+            tabHeight = tabHeight;
+        }
     }
     
     else{
         newValF = screenHeight - 568;
         
-        tabHeight = tabHeight + newValF;
+        if (indexPath.row == 0) {
+            
+            if ([[[globalArray valueForKey:@"isOld"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                tabHeight = 0;
+            }
+            else{
+            tabHeight = 75;
+            }
+        }
+        
+        else{
+            
+            tabHeight = tabHeight + newValF;
+            
+        }
     }
+    
     
     
     return tabHeight;
@@ -1239,7 +1281,7 @@
 #pragma mark - Table View Data source
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:
 (NSInteger)section{
-    return 1;
+    return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:
@@ -1258,7 +1300,7 @@
     
     
     
-    
+    static NSString *titleCell = @"titleCell";
     
     static NSString *cellIdentifierThreeVersus = @"threeVersusMyCell";
     static NSString *cellIdentifierOneThreeVersus = @"threeVersusOneCommentCell";
@@ -1301,7 +1343,7 @@
 //            
 //            
 //            if (indexPath.section == [globalArray count]-1 ) {
-//                
+//
 //                
 //                int plusVal = newVal+1;
 //                newVal = plusVal;
@@ -1319,6 +1361,44 @@
         
         nameArr =  [[NSMutableArray alloc] init];
         
+        
+        
+        
+        if (indexPath.row == 0) {
+            
+            if ([[[globalArray valueForKey:@"isOld"] objectAtIndex:indexPath.section] integerValue] == 1) {
+                
+                
+                cell = [tableView dequeueReusableCellWithIdentifier:
+                        cellIdentifierFour];
+                if (cell == nil) {
+                    cell = [[globalViewCell alloc]initWithStyle:
+                            UITableViewCellStyleDefault reuseIdentifier:cellIdentifierFour];
+                }
+                
+                
+                
+                cell.titleLableText.text = [[globalArray valueForKey:@"Title"] objectAtIndex:indexPath.section];
+                
+            }
+            
+            else{
+            
+            cell = [tableView dequeueReusableCellWithIdentifier:
+                    titleCell];
+            if (cell == nil) {
+                cell = [[globalViewCell alloc]initWithStyle:
+                        UITableViewCellStyleDefault reuseIdentifier:titleCell];
+            }
+            
+            
+            
+            cell.titleLableText.text = [[globalArray valueForKey:@"Title"] objectAtIndex:indexPath.section];
+            
+            }
+        }
+        
+        else{
         
         if ([[[[globalArray valueForKey:@"combo"] objectAtIndex:indexPath.section] valueForKey:@"lstComments"] count] == 0) {
             
@@ -7707,7 +7787,7 @@
             
             //Post Title
             
-            [cell.titleLabelView setHidden:NO];
+          //  [cell.titleLabelView setHidden:NO];
             
             cell.titleLabel.text = [[globalArray valueForKey:@"Title"] objectAtIndex:indexPath.section];
             
@@ -9269,7 +9349,7 @@
             
             //Post Title
             
-            [cell.titleLabelView setHidden:NO];
+           // [cell.titleLabelView setHidden:NO];
             
             cell.titleLabel.text = [[globalArray valueForKey:@"Title"] objectAtIndex:indexPath.section];
             
@@ -10495,7 +10575,7 @@
         }
         
         
-        
+        }
         
     }
     else{
@@ -10590,7 +10670,7 @@
     commentViewVal = @"val";
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"getPost" bundle:nil];
     GetPostDetailsViewController *myVC = (GetPostDetailsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"GetPostDetailsViewController"];
     myVC.postIdVal = [[nameArr valueForKey:@"HashTagId"] objectAtIndex:indexPath.row];
     myVC.hashTagName = [[nameArr valueForKey:@"HashTag"] objectAtIndex:indexPath.row];
@@ -11580,13 +11660,25 @@
     return nil;
 }
 
+- (globalViewCell *)containingCellForView:(UIView *)view
+{
+    if (!view.superview)
+        return nil;
+    
+    if ([view.superview isKindOfClass:[UITableViewCell class]])
+        return (globalViewCell *)view.superview;
+    
+    return [self containingCellForView:view.superview];
+}
 
 -(void)buttonAction:(id)sender{
     
     
+    globalViewCell *containingCell = [self containingCellForView:sender];
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+        NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+        NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
+        
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil || indexPath== nil)
     {
@@ -11800,7 +11892,7 @@
     
     
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"CameraView" bundle:nil];
     CameraViewController *myVC = (CameraViewController *)[storyboard instantiateViewControllerWithIdentifier:@"CameraViewController"];
     
     
@@ -11900,7 +11992,7 @@
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z1"]];
+            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z2"]];
             
             
             
@@ -11961,7 +12053,7 @@
                             activepostArray = [[NSMutableArray alloc]init];
                             
                             
-                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z1Result"]];
+                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z2Result"]];
                             
                             if (dataArray.count > 0) {
                                 
@@ -12103,7 +12195,7 @@
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z1"]];
+            NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z2"]];
             
             
             
@@ -12168,7 +12260,7 @@
                             activepostArray = [[NSMutableArray alloc]init];
                             
                             
-                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z1Result"]];
+                            [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z2Result"]];
                             
                             if (dataArray.count > 0) {
                                 
@@ -12319,7 +12411,7 @@
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
-                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z1"]];
+                NSMutableURLRequest *requestPost =[NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.heyvote.com/WebServices/HeyVoteService.svc/posts/GetPostList_Z2"]];
                 
                 
                 
@@ -12381,7 +12473,7 @@
                                 NSMutableArray* secArray = [[NSMutableArray alloc]init];
                                 
                                 
-                                [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z1Result"]];
+                                [dataArray addObjectsFromArray:[dic valueForKey:@"GetPostList_Z2Result"]];
                                 
                                 if (dataArray.count > 0) {
                                     
@@ -12411,18 +12503,10 @@
                                 
                                 //  [GMDCircleLoader hideFromView:newView animated:YES];
                                 // [newView removeFromSuperview];
-                                
-                                
-                                
-                                
-                                
-                                
+
                                 
                             }
-                            
-                            
-                            
-                            
+               
                         });
                     }
                 }];
@@ -12755,8 +12839,10 @@
     // timerLoad = @"invalid";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -13164,8 +13250,11 @@
     
     //  timerLoad = @"invalid";
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
@@ -13564,8 +13653,10 @@
     commentViewVal = @"val";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -13607,8 +13698,10 @@
     NSString*stringVal = @"Re-HeyVote in progress...";
     [self showToast:stringVal];
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -13749,8 +13842,11 @@
     
     timerLoad = @"invalid";
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -13779,8 +13875,11 @@
 - (IBAction)moreButton:(id)sender {
     timerLoad = @"invalid";
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -13909,8 +14008,11 @@
 
 - (IBAction)moreFollow:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -14197,8 +14299,11 @@
 
 - (IBAction)moreBlock:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -14479,8 +14584,11 @@
 
 - (IBAction)moreReport:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -14619,8 +14727,11 @@
 
 - (IBAction)commentSendButton:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     //    if ([[[globalArray valueForKey:@"CanVote"] objectAtIndex:indexPath.section] integerValue] == 0) {
     //        [self showToast:@"You can't comment on this post"];
@@ -14852,8 +14963,11 @@
 - (IBAction)buttonOverImage:(id)sender {
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -14897,8 +15011,11 @@
 
 - (IBAction)doubleVoicePlayLeftButton:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     
     if (indexPath != nil)
     {
@@ -14909,8 +15026,11 @@
 
 - (IBAction)doubleVoicePlayRightButton:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     
     if (indexPath != nil)
     {
@@ -14923,8 +15043,10 @@
 - (IBAction)singleVoicePlayButton:(id)sender {
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -14941,8 +15063,11 @@
 
 - (IBAction)deleteButton:(id)sender {
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -15098,8 +15223,12 @@
     commentViewVal = @"val";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
+    
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     if (indexPath != nil)
     {
@@ -15669,8 +15798,10 @@
     // timerLoad = @"invalid";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -15900,9 +16031,10 @@
     
     // timerLoad = @"invalid";
     
+    globalViewCell *containingCell = [self containingCellForView:sender];
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -16129,9 +16261,10 @@
     
     // timerLoad = @"invalid";
     
+    globalViewCell *containingCell = [self containingCellForView:sender];
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -16365,9 +16498,10 @@
     
     // timerLoad = @"invalid";
     
+    globalViewCell *containingCell = [self containingCellForView:sender];
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -16597,8 +16731,10 @@
     // timerLoad = @"invalid";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -16828,8 +16964,10 @@
     // timerLoad = @"invalid";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
@@ -17059,8 +17197,10 @@
     // timerLoad = @"invalid";
     
     
-    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:self.myTableView];
-    NSIndexPath *indexPath = [self.myTableView indexPathForRowAtPoint:buttonPosition];
+    globalViewCell *containingCell = [self containingCellForView:sender];
+    
+    NSIndexPath *indexPath = [self.myTableView indexPathForCell:containingCell];
+    NSLog(@"Section: %li Row: %li", (long)indexPath.section, (long)indexPath.row);
     globalViewCell*cell = [self.myTableView cellForRowAtIndexPath:indexPath];
     
     
