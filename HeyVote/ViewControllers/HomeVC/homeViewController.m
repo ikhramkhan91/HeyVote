@@ -20,6 +20,7 @@
 #import "homeViewControllerRightSwipe.h"
 #import "easyPostingViewController.h"
 
+
 @interface homeViewController (){
    // MPMoviePlayerController *controller;
    
@@ -15222,9 +15223,13 @@ timerLoad = @"";
         
            else{
         
-        [_myTableView setUserInteractionEnabled:NO];
-        _zoomImageView.image = cell.proImageView.image;
-        [_zoomView setHidden:NO];
+      //  [_myTableView setUserInteractionEnabled:NO];
+               
+             [EXPhotoViewer showImageFrom:cell.proImageView];
+               
+               
+//        _zoomImageView.image = cell.proImageView.image;
+//        [_zoomView setHidden:NO];
         
            }
     }
@@ -17683,4 +17688,8 @@ timerLoad = @"";
     }
     
 }
+
+
+
+
 @end

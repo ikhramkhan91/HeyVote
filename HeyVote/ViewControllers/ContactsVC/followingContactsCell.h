@@ -11,5 +11,7 @@
 @interface followingContactsCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *profileImage;
 @property (weak, nonatomic) IBOutlet UILabel *profileName;
+- (IBAction)chatButon:(id)sender;
+@property (weak, nonatomic) IBOutlet UIButton *chatButon;
 
 @end

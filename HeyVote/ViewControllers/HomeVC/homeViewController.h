@@ -20,6 +20,9 @@
 #import "THCircularProgressView.h"
 #import <AVKit/AVKit.h>
 #import "AppDelegate.h"
+#import "EXPhotoViewer.h"
+
+
 
 
 @interface homeViewController : UIViewController<UITableViewDataSource,

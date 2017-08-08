@@ -13,7 +13,16 @@
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 
+
+@class SPHViewController;
 @interface AppDelegate : UIResponder <UIApplicationDelegate,SKSplashDelegate>
+{
+    id currentViewController;
+}
+
+@property (strong, nonatomic) SPHViewController *viewController;
+
+@property (nonatomic, assign) id currentViewController;
 
 @property (strong, nonatomic) UIWindow *window;
 

@@ -10,6 +10,7 @@
 #import "homeViewController.h"
 #import <GooglePlus/GooglePlus.h>
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import "SPHViewController.h"
 
 
 
@@ -17,7 +18,27 @@
 
 @end
 
+
+@implementation UIApplication (Private)
+
+- (BOOL)customOpenURL:(NSURL*)url
+{
+   AppDelegate *MyWatcher = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    if (MyWatcher.currentViewController) {
+        [MyWatcher.currentViewController handleURL:url];
+        return YES;
+    }
+    return NO;
+}
+
+@end
+
 @implementation AppDelegate
+
+
+
+
+@synthesize currentViewController=_currentViewController;
 static NSString * const kClientID =
 @"650325777554-hunbnh6qr4k0ac175r48cmr4bgelmhqs.apps.googleusercontent.com";
 
@@ -42,22 +63,6 @@ static NSString * const kClientID =
         [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"homeViewController"] animated:NO];
         
     }
-//    
-//    else{
-//        
-//        UINavigationController *navigationController = (UINavigationController *) self.window.rootViewController;
-//        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//        [navigationController pushViewController:[storyboard instantiateViewControllerWithIdentifier:@"FaceBookGoogleSignUpVC"] animated:NO];
-//        
-//        
-//    }
-
-//    
-//    UIApplicationShortcutItem *item1 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic1" localizedTitle:@"Easy Post" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeCompose] userInfo:nil];
-//    UIApplicationShortcutItem *item2 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic2" localizedTitle:@"Notifications" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeMessage] userInfo:nil];
-//    UIApplicationShortcutItem *item3 = [[UIApplicationShortcutItem alloc] initWithType:@"dynamic3" localizedTitle:@"My Profile" localizedSubtitle:@"" icon:[UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeContact] userInfo:nil];
-//    
-//    [[UIApplication sharedApplication] setShortcutItems: @[ item1, item2, item3 ]];
 
     
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
@@ -75,8 +80,7 @@ static NSString * const kClientID =
               (UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert)];
          }
     }
-//
-    
+
     
     [[FBSDKApplicationDelegate sharedInstance] application:application
                              didFinishLaunchingWithOptions:launchOptions];
@@ -91,6 +95,20 @@ static NSString * const kClientID =
         
 
     return YES;
+    
+    
+    
+//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+//    // Override point for customization after application launch.
+//    self.viewController = [[SPHViewController alloc] initWithNibName:@"SPHViewController" bundle:nil];
+//    UINavigationController *navc=[[UINavigationController alloc]initWithRootViewController:self.viewController];
+//    navc.navigationBarHidden=YES;
+//    self.window.rootViewController = navc;
+//    [self.window makeKeyAndVisible];
+//    return YES;
+
+    
+    
 }
 
 
